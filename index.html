@@ -468,68 +468,6 @@
       font-style: italic;
     }
 
-    /* ─── FORMAT TOGGLE ─── */
-    .format-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      margin-bottom: 1rem;
-      overflow: hidden;
-    }
-
-    .format-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      padding: 0.5rem 0.6rem;
-      font-family: 'Jost', sans-serif;
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.25s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-    }
-
-    .format-btn:first-child {
-      border-right: 1px solid var(--border);
-    }
-
-    .format-btn.active {
-      background: var(--ink);
-      color: var(--parchment);
-    }
-
-    .format-btn.active .format-icon { color: var(--gold); }
-
-    .format-panel { display: none; }
-    .format-panel.active { display: block; }
-
-    .digital-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: rgba(184,144,42,0.1);
-      border: 1px solid rgba(184,144,42,0.25);
-      color: var(--gold);
-      font-size: 0.58rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 0.25rem 0.55rem;
-      margin-bottom: 0.6rem;
-    }
-
-    .digital-formats {
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      margin-top: 0.25rem;
-    }
-
     .book-unavailable {
       opacity: 0.6;
     }
@@ -873,6 +811,25 @@
         <h2 class="section-title" style="color:var(--parchment)">Vérifiez<br>vos crédits</h2>
         <p>Entrez votre numéro de carte client pour consulter votre solde de crédits disponibles et votre historique d'achats.</p>
       </div>
+      <div class="credits-form" id="authSection">
+      <div id="loginForm">
+        <div class="credits-input-wrap">
+          <input type="email" id="emailInput" placeholder="Votre email" autocomplete="email">
+        </div>
+        <div class="credits-input-wrap" style="margin-top: 1rem;">
+          <input type="password" id="passwordInput" placeholder="Votre mot de passe">
+        </div>
+        <div class="credits-error" id="authError">✕ Erreur de connexion.</div>
+        <button class="btn-gold" style="margin-top: 1rem;" onclick="handleLogin()">Se connecter</button>
+      </div>
+
+      <div id="userProfile" style="display: none;">
+        <p class="client-name" id="userName">—</p>
+        <div class="credit-count" id="userCredits">0</div>
+        <div class="credit-label">crédits disponibles</div>
+        <button class="btn-outline" style="margin-top: 1rem;" onclick="handleLogout()">Se déconnecter</button>
+      </div>
+    </div>
       <div>
         <div class="credits-form">
           <div class="credits-input-wrap">
@@ -943,7 +900,7 @@
           <div class="step-number">04</div>
           <div class="step-content">
             <h4>Finalisez l'achat</h4>
-            <p>Contactez-nous ou rendez-vous en boutique pour valider l'échange. Vos crédits sont débités instantanément. Pour la version numérique, le fichier (.zip ou .tar) vous est envoyé par email — accès à vie garanti.</p>
+            <p>Contactez-nous ou rendez-vous en boutique pour valider l'échange. Vos crédits sont débités instantanément.</p>
           </div>
         </div>
       </div>
@@ -1008,8 +965,7 @@
             <select>
               <option value="">Sélectionnez un sujet</option>
               <option>Solde de crédits</option>
-              <option>Commande d'un livre (physique)</option>
-              <option>Commande d'un livre (numérique .zip/.tar)</option>
+              <option>Commande d'un livre</option>
               <option>Disponibilité d'un titre</option>
               <option>Problème avec ma carte</option>
               <option>Autre</option>
@@ -1070,14 +1026,6 @@
     };
 
     // ─── BUILD CARD HTML ───
-    function switchFormat(uid, format, btn) {
-      const card = btn.closest('.book-card');
-      card.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-      card.querySelectorAll('.format-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(uid + '-' + format).classList.add('active');
-    }
-
     function buildCard(book) {
       const words = (book.title || '').split(' ');
       const half  = Math.ceil(words.length / 2);
@@ -1085,12 +1033,6 @@
       const line2 = words.slice(half).join(' ');
       const card  = document.createElement('div');
       card.className = 'book-card fade-up';
-      const physCredits  = book.credits || '—';
-      const digitCredits = (book.credits && !isNaN(book.credits))
-        ? (parseInt(book.credits) * 3)
-        : '—';
-      const uid = 'book-' + Math.random().toString(36).slice(2, 8);
-
       card.innerHTML = `
         <div class="book-cover" style="background:${COVER_PATTERNS[book.color] || COVER_PATTERNS['cover-elite']}">
           <div class="book-cover-pattern"></div>
@@ -1103,36 +1045,12 @@
           <h3>${book.title}</h3>
           <div class="author">${book.author || 'Polio Éditions'}</div>
           <p class="description">${book.description || book.desc || 'Un ouvrage de la collection Polio.'}</p>
-
-          <div class="format-toggle">
-            <button class="format-btn active" onclick="switchFormat('${uid}','physical',this)">
-              <span class="format-icon">📖</span> Physique
-            </button>
-            <button class="format-btn" onclick="switchFormat('${uid}','digital',this)">
-              <span class="format-icon">⬇</span> Numérique
-            </button>
-          </div>
-
-          <div id="${uid}-physical" class="format-panel active">
-            <div class="book-footer">
-              <div class="book-credits">
-                <span class="number">${physCredits}</span>
-                <span class="label">crédits</span>
-              </div>
-              <span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">En stock</span>
+          <div class="book-footer">
+            <div class="book-credits">
+              <span class="number">${book.credits || '—'}</span>
+              <span class="label">crédits</span>
             </div>
-          </div>
-
-          <div id="${uid}-digital" class="format-panel">
-            <div class="digital-badge">⬇ Téléchargeable — Accès à vie</div>
-            <div class="book-footer">
-              <div class="book-credits">
-                <span class="number">${digitCredits}</span>
-                <span class="label">crédits</span>
-              </div>
-              <span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">Immédiat</span>
-            </div>
-            <div class="digital-formats">.zip &nbsp;·&nbsp; .tar — livraison par email</div>
+            <span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">En stock</span>
           </div>
         </div>`;
       return card;
@@ -1288,7 +1206,122 @@
       }
       loadBooksFromDB();
     })();
+// Vérifier si un utilisateur est déjà connecté au chargement de la page
+async function checkSession() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    showUserProfile(session.user);
+  }
+}
 
+// Fonction de connexion
+async function handleLogin() {
+  const email = document.getElementById('emailInput').value;
+  const password = document.getElementById('passwordInput').value;
+  const errorEl = document.getElementById('authError');
+  
+  errorEl.classList.remove('visible');
+
+  const { data, error } = await db.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
+
+  if (error) {
+    errorEl.textContent = "✕ Identifiants incorrects.";
+    errorEl.classList.add('visible');
+  } else {
+    showUserProfile(data.user);
+  }
+}
+
+// Fonction de déconnexion
+async function handleLogout() {
+  await db.auth.signOut();
+  document.getElementById('userProfile').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  // Recharger les livres pour cacher les boutons de téléchargement
+  loadBooksFromDB(); 
+}
+
+// Afficher le profil et récupérer les crédits
+async function showUserProfile(user) {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('userProfile').style.display = 'block';
+  
+  // Récupérer les infos du client lié à cet utilisateur
+  const { data, error } = await db
+    .from('clients')
+    .select('name, credits')
+    .eq('user_id', user.id) // Assurez-vous d'avoir cette colonne !
+    .single();
+
+  if (data) {
+    document.getElementById('userName').textContent = data.name;
+    document.getElementById('userCredits').textContent = data.credits;
+  }
+  
+  // Recharger le catalogue pour afficher les boutons "Télécharger"
+  loadBooksFromDB();
+}
+
+// Appeler checkSession au démarrage
+checkSession();
+async function buildCard(book) {
+  // ... votre code existant pour le titre et le design ...
+
+  // Vérifier si l'utilisateur est connecté
+  const { data: { session } } = await db.auth.getSession();
+  let actionButtonHtml = '';
+
+  if (session) {
+    // Si connecté, on propose de dépenser des crédits ou de télécharger directement
+    actionButtonHtml = `<button class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.6rem;" onclick="downloadBook('${book.id}', '${book.file_path}')">Télécharger</button>`;
+  } else {
+    actionButtonHtml = `<span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">Connectez-vous</span>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'book-card fade-up';
+  card.innerHTML = `
+    <div class="book-info">
+      <h3>${book.title}</h3>
+      <div class="author">${book.author || 'Polio Éditions'}</div>
+      <p class="description">${book.description || book.desc || 'Un ouvrage de la collection Polio.'}</p>
+      <div class="book-footer">
+        <div class="book-credits">
+          <span class="number">${book.credits || '—'}</span>
+          <span class="label">crédits</span>
+        </div>
+        ${actionButtonHtml}
+      </div>
+    </div>`;
+  return card;
+}
+async function downloadBook(bookId, filePath) {
+  if (!filePath) {
+    alert("Version numérique indisponible pour le moment.");
+    return;
+  }
+
+  // Ici, vous devriez idéalement appeler une "Edge Function" Supabase 
+  // ou faire une transaction pour vérifier les crédits, les déduire, 
+  // et enregistrer l'achat avant de donner le lien.
+  
+  // Pour la démonstration (générer un lien signé valide 60 secondes) :
+  const { data, error } = await db
+    .storage
+    .from('ebooks')
+    .createSignedUrl(filePath, 60);
+
+  if (error) {
+    alert("Erreur lors du téléchargement. Avez-vous les accès ?");
+    return;
+  }
+
+  // Ouvrir le téléchargement
+  window.open(data.signedUrl, '_blank');
+}
   </script>
 </body>
 </html>
