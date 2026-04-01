@@ -7,9 +7,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
   <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -27,9 +25,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Jost', sans-serif;
       background: var(--cream);
@@ -54,7 +50,6 @@
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
-
     .nav-logo {
       font-family: 'Cinzel', serif;
       font-size: 1.4rem;
@@ -62,13 +57,8 @@
       color: var(--ink);
       text-transform: uppercase;
     }
-
     .nav-logo span { color: var(--gold); }
-
-    .nav-links {
-      display: flex; gap: 2.5rem; list-style: none;
-    }
-
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
     .nav-links a {
       font-family: 'Jost', sans-serif;
       font-size: 0.75rem;
@@ -79,7 +69,6 @@
       text-decoration: none;
       transition: color 0.25s;
     }
-
     .nav-links a:hover { color: var(--gold); }
 
     /* ─── HERO ─── */
@@ -91,7 +80,6 @@
       padding: 8rem 4rem 4rem;
       overflow: hidden;
     }
-
     .hero-bg-text {
       position: absolute;
       right: -2rem; top: 50%;
@@ -105,7 +93,6 @@
       pointer-events: none;
       user-select: none;
     }
-
     .hero-eyebrow {
       font-size: 0.7rem;
       letter-spacing: 0.35em;
@@ -114,14 +101,12 @@
       margin-bottom: 1.5rem;
       display: flex; align-items: center; gap: 1rem;
     }
-
     .hero-eyebrow::before {
       content: '';
       display: inline-block;
       width: 2.5rem; height: 1px;
       background: var(--gold);
     }
-
     h1 {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(3.5rem, 8vw, 7rem);
@@ -131,12 +116,7 @@
       max-width: 14ch;
       margin-bottom: 2rem;
     }
-
-    h1 em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
+    h1 em { font-style: italic; color: var(--gold); }
     .hero-desc {
       font-size: 1rem;
       font-weight: 300;
@@ -145,7 +125,6 @@
       max-width: 44ch;
       margin-bottom: 3rem;
     }
-
     .btn-primary {
       display: inline-flex; align-items: center; gap: 0.8rem;
       background: var(--ink);
@@ -160,9 +139,7 @@
       border: none; cursor: pointer;
       transition: background 0.3s, transform 0.2s;
     }
-
     .btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
-
     .btn-outline {
       display: inline-flex; align-items: center; gap: 0.8rem;
       background: transparent;
@@ -177,24 +154,19 @@
       border: 1px solid var(--ink); cursor: pointer;
       transition: all 0.3s;
     }
-
     .btn-outline:hover { background: var(--ink); color: var(--parchment); }
-
     .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-
     .hero-scroll-hint {
       position: absolute; bottom: 2.5rem; left: 50%;
       transform: translateX(-50%);
       display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
       font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted);
     }
-
     .scroll-line {
       width: 1px; height: 3rem;
       background: linear-gradient(to bottom, var(--gold), transparent);
       animation: scrollPulse 2s ease-in-out infinite;
     }
-
     @keyframes scrollPulse {
       0%, 100% { opacity: 0.4; transform: scaleY(1); }
       50% { opacity: 1; transform: scaleY(1.1); }
@@ -202,7 +174,6 @@
 
     /* ─── SECTION SHARED ─── */
     section { position: relative; z-index: 1; }
-
     .section-label {
       font-size: 0.65rem;
       letter-spacing: 0.35em;
@@ -211,12 +182,10 @@
       display: flex; align-items: center; gap: 1rem;
       margin-bottom: 1rem;
     }
-
     .section-label::before {
       content: ''; display: inline-block;
       width: 2rem; height: 1px; background: var(--gold);
     }
-
     .section-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(2.2rem, 4vw, 3.5rem);
@@ -225,33 +194,27 @@
       margin-bottom: 1.5rem;
     }
 
-    /* ─── CREDITS CHECK ─── */
+    /* ─── CREDITS / AUTH ─── */
     #credits {
       background: var(--ink);
       color: var(--parchment);
       padding: 6rem 4rem;
     }
-
     .credits-inner {
       max-width: 900px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
     }
-
     #credits .section-label { color: var(--gold-light); }
     #credits .section-title { color: var(--parchment); }
-
     #credits p {
       font-weight: 300; line-height: 1.8;
       color: rgba(245,240,232,0.65);
       margin-bottom: 2rem;
     }
-
     .credits-form {
       display: flex; flex-direction: column; gap: 1rem;
     }
-
     .credits-input-wrap { position: relative; }
-
     .credits-input-wrap input {
       width: 100%;
       background: rgba(255,255,255,0.06);
@@ -264,10 +227,8 @@
       outline: none;
       transition: border-color 0.3s;
     }
-
     .credits-input-wrap input::placeholder { color: rgba(245,240,232,0.3); }
     .credits-input-wrap input:focus { border-color: var(--gold); }
-
     .btn-gold {
       background: var(--gold);
       color: var(--ink);
@@ -281,9 +242,8 @@
       transition: background 0.3s, transform 0.2s;
       align-self: flex-start;
     }
-
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
-
+    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .credits-result {
       display: none;
       background: rgba(184,144,42,0.12);
@@ -291,34 +251,29 @@
       padding: 1.5rem;
       margin-top: 0.5rem;
     }
-
     .credits-result.visible { display: block; }
-
     .credits-result .client-name {
       font-family: 'Cormorant Garamond', serif;
       font-size: 1.5rem; font-weight: 300;
       color: var(--parchment);
       margin-bottom: 0.5rem;
     }
-
     .credits-result .credit-count {
       font-size: 2.5rem;
       font-family: 'Cinzel', serif;
       color: var(--gold);
     }
-
     .credits-result .credit-label {
       font-size: 0.7rem; letter-spacing: 0.2em;
       text-transform: uppercase; color: rgba(245,240,232,0.5);
     }
-
     .credits-error {
       display: none;
       color: #e07060;
-      font-size: 0.85rem;
-      padding: 0.75rem 0;
+      font-size: 0.82rem;
+      padding: 0.5rem 0;
+      line-height: 1.5;
     }
-
     .credits-error.visible { display: block; }
 
     /* ─── CATALOGUE ─── */
@@ -326,17 +281,12 @@
       padding: 7rem 4rem;
       background: var(--parchment);
     }
-
-    .catalogue-header {
-      max-width: 1100px; margin: 0 auto 4rem;
-    }
-
+    .catalogue-header { max-width: 1100px; margin: 0 auto 4rem; }
     .catalogue-grid {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 2.5rem;
     }
-
     .book-card {
       position: relative;
       background: var(--cream);
@@ -344,12 +294,10 @@
       overflow: hidden;
       transition: transform 0.35s, box-shadow 0.35s;
     }
-
     .book-card:hover {
       transform: translateY(-6px);
       box-shadow: 0 20px 50px rgba(13,11,8,0.12);
     }
-
     .book-cover {
       position: relative;
       width: 100%; aspect-ratio: 3/4;
@@ -359,35 +307,22 @@
       overflow: hidden;
       padding: 2rem 1.8rem;
     }
-
-    .book-cover-pattern {
-      position: absolute; inset: 0;
-      opacity: 0.15;
-    }
-
-    /* Cover for L'Élite de la Force */
-    .cover-elite {
-      background: linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%);
-    }
-
+    .book-cover-pattern { position: absolute; inset: 0; opacity: 0.15; }
+    .cover-elite { background: linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%); }
     .cover-elite .book-cover-pattern {
       background-image:
         repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(184,144,42,0.3) 12px, rgba(184,144,42,0.3) 13px),
         repeating-linear-gradient(-45deg, transparent, transparent 12px, rgba(184,144,42,0.15) 12px, rgba(184,144,42,0.15) 13px);
     }
-
     .cover-coming1 { background: linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%); }
     .cover-coming2 { background: linear-gradient(160deg, #0d1520 0%, #142030 100%); }
     .cover-coming3 { background: linear-gradient(160deg, #151208 0%, #251e0c 100%); }
-
     .book-cover-ornament {
-      position: absolute;
-      top: 50%; left: 50%;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       font-size: 4rem; opacity: 0.08;
       user-select: none;
     }
-
     .book-cover-title {
       position: relative; z-index: 1;
       font-family: 'Cormorant Garamond', serif;
@@ -396,106 +331,68 @@
       line-height: 1.2;
       margin-bottom: 0.5rem;
     }
-
     .book-cover-author {
       position: relative; z-index: 1;
       font-size: 0.65rem; letter-spacing: 0.25em;
       text-transform: uppercase;
       color: rgba(245,240,232,0.45);
     }
-
     .book-badge {
       position: absolute; top: 1rem; right: 1rem; z-index: 2;
       font-size: 0.6rem; font-weight: 600;
       letter-spacing: 0.15em; text-transform: uppercase;
       padding: 0.35rem 0.75rem;
     }
-
-    .badge-available {
-      background: var(--gold);
-      color: var(--ink);
-    }
-
+    .badge-available { background: var(--gold); color: var(--ink); }
     .badge-soon {
       background: rgba(245,240,232,0.12);
       color: rgba(245,240,232,0.5);
       border: 1px solid rgba(245,240,232,0.15);
       backdrop-filter: blur(4px);
     }
-
-    .book-info {
-      padding: 1.5rem 1.8rem 1.8rem;
-    }
-
+    .book-info { padding: 1.5rem 1.8rem 1.8rem; }
     .book-info h3 {
       font-family: 'Cormorant Garamond', serif;
       font-size: 1.2rem; font-weight: 400;
       margin-bottom: 0.4rem;
     }
-
     .book-info .author {
       font-size: 0.75rem; color: var(--muted);
       letter-spacing: 0.05em; margin-bottom: 0.8rem;
     }
-
     .book-info .description {
       font-size: 0.82rem; line-height: 1.7;
       color: var(--muted); font-weight: 300;
       margin-bottom: 1.2rem;
     }
-
-    .book-footer {
-      display: flex; align-items: center; justify-content: space-between;
-    }
-
-    .book-credits {
-      display: flex; align-items: baseline; gap: 0.3rem;
-    }
-
+    .book-footer { display: flex; align-items: center; justify-content: space-between; }
+    .book-credits { display: flex; align-items: baseline; gap: 0.3rem; }
     .book-credits .number {
       font-family: 'Cinzel', serif;
       font-size: 1.4rem; color: var(--gold);
     }
-
     .book-credits .label {
       font-size: 0.65rem; letter-spacing: 0.15em;
       text-transform: uppercase; color: var(--muted);
     }
-
     .book-status-text {
       font-size: 0.7rem; letter-spacing: 0.1em;
       text-transform: uppercase; color: var(--muted);
       font-style: italic;
     }
 
-    .book-unavailable {
-      opacity: 0.6;
-    }
-
-    .book-unavailable .book-cover-title { color: rgba(245,240,232,0.4); }
-
-    /* ─── ABOUT / HOW IT WORKS ─── */
-    #how {
-      padding: 7rem 4rem;
-      background: var(--cream);
-    }
-
+    /* ─── HOW IT WORKS ─── */
+    #how { padding: 7rem 4rem; background: var(--cream); }
     .how-inner {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 2fr; gap: 6rem; align-items: start;
     }
-
-    .how-steps {
-      display: flex; flex-direction: column; gap: 0;
-    }
-
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
     .how-step {
       display: flex; gap: 1.5rem;
       padding: 2rem 0;
       border-bottom: 1px solid var(--border);
-      position: relative;
     }
-
     .step-number {
       font-family: 'Cinzel', serif;
       font-size: 2.2rem; font-weight: 400;
@@ -504,42 +401,32 @@
       line-height: 1;
       transition: color 0.3s;
     }
-
     .how-step:hover .step-number { color: var(--gold); }
-
     .step-content h4 {
       font-family: 'Cormorant Garamond', serif;
       font-size: 1.2rem; font-weight: 400;
       margin-bottom: 0.5rem;
     }
-
     .step-content p {
       font-size: 0.85rem; line-height: 1.75;
       color: var(--muted); font-weight: 300;
     }
 
     /* ─── CONTACT ─── */
-    #contact {
-      padding: 7rem 4rem;
-      background: var(--parchment);
-    }
-
+    #contact { padding: 7rem 4rem; background: var(--parchment); }
     .contact-inner {
       max-width: 900px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1.2fr; gap: 5rem; align-items: start;
     }
-
     .contact-info p {
       font-size: 0.9rem; line-height: 1.8;
       color: var(--muted); font-weight: 300;
       margin-bottom: 2rem;
     }
-
     .contact-detail {
       display: flex; align-items: flex-start; gap: 1rem;
       margin-bottom: 1.2rem;
     }
-
     .contact-detail-icon {
       width: 2rem; height: 2rem;
       border: 1px solid var(--border);
@@ -548,40 +435,27 @@
       flex-shrink: 0;
       margin-top: 0.1rem;
     }
-
     .contact-detail-text {
       font-size: 0.85rem; line-height: 1.6; color: var(--muted);
     }
-
     .contact-detail-text strong {
       display: block;
       font-size: 0.65rem; letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--gold);
       font-weight: 500; margin-bottom: 0.2rem;
     }
-
     .contact-detail-text a {
       color: var(--ink); text-decoration: none;
       transition: color 0.25s;
     }
-
     .contact-detail-text a:hover { color: var(--gold); }
-
-    /* Contact Form */
-    .contact-form {
-      display: flex; flex-direction: column; gap: 1.2rem;
-    }
-
-    .form-group {
-      display: flex; flex-direction: column; gap: 0.4rem;
-    }
-
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-group label {
       font-size: 0.62rem; letter-spacing: 0.25em;
       text-transform: uppercase; color: var(--gold);
       font-weight: 500;
     }
-
     .form-group input,
     .form-group textarea,
     .form-group select {
@@ -597,17 +471,11 @@
       resize: none;
       appearance: none;
     }
-
     .form-group input:focus,
     .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: var(--gold);
-    }
-
+    .form-group select:focus { border-color: var(--gold); }
     .form-group textarea { min-height: 120px; line-height: 1.7; }
-
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
     .form-success {
       display: none;
       background: rgba(184,144,42,0.1);
@@ -616,7 +484,6 @@
       font-size: 0.85rem; color: var(--gold);
       letter-spacing: 0.05em;
     }
-
     .form-success.visible { display: block; }
 
     /* ─── FOOTER ─── */
@@ -628,23 +495,14 @@
       flex-wrap: wrap; gap: 1rem;
       border-top: 1px solid rgba(184,144,42,0.2);
     }
-
     .footer-logo {
       font-family: 'Cinzel', serif;
       font-size: 1rem; letter-spacing: 0.3em;
       color: var(--parchment);
     }
-
     .footer-logo span { color: var(--gold); }
-
-    footer p {
-      font-size: 0.72rem; letter-spacing: 0.1em;
-    }
-
-    footer a {
-      color: var(--gold); text-decoration: none;
-      font-size: 0.72rem;
-    }
+    footer p { font-size: 0.72rem; letter-spacing: 0.1em; }
+    footer a { color: var(--gold); text-decoration: none; font-size: 0.72rem; }
 
     /* ─── DIVIDER ─── */
     .ornamental-divider {
@@ -656,7 +514,6 @@
       padding: 0 4rem;
       overflow: hidden;
     }
-
     .ornamental-divider::before,
     .ornamental-divider::after {
       content: '';
@@ -673,9 +530,89 @@
       transform: translateY(30px);
       transition: opacity 0.7s ease, transform 0.7s ease;
     }
+    .fade-up.visible { opacity: 1; transform: none; }
 
-    .fade-up.visible {
-      opacity: 1; transform: none;
+    /* ─── SITE FERMÉ ─── */
+    .site-closed-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      background:
+        radial-gradient(circle at top, rgba(184,144,42,0.18), transparent 30%),
+        linear-gradient(180deg, #0d0b08 0%, #17120b 100%);
+      color: var(--parchment);
+    }
+    .site-closed-card {
+      width: min(760px, 100%);
+      background: rgba(245,240,232,0.06);
+      border: 1px solid rgba(184,144,42,0.28);
+      border-radius: 32px;
+      padding: 3rem;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+    }
+    .site-closed-mark {
+      width: 88px; height: 88px;
+      margin: 0 auto 1.5rem;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(184,144,42,0.95), rgba(212,168,67,0.72));
+      color: #1a130a;
+      display: grid; place-items: center;
+      font-family: 'Cinzel', serif;
+      font-size: 2.4rem; font-weight: 600;
+    }
+    .site-closed-eyebrow {
+      font-size: .72rem; letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 1rem;
+    }
+    .site-closed-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 300; line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .site-closed-text {
+      max-width: 34rem; margin: 0 auto 1.6rem;
+      color: rgba(245,240,232,0.74);
+      font-size: 1rem; line-height: 1.8;
+    }
+    .site-closed-badge {
+      display: inline-flex; align-items: center; gap: .6rem;
+      border: 1px solid rgba(184,144,42,0.28);
+      background: rgba(184,144,42,0.1);
+      color: var(--gold-light);
+      border-radius: 999px;
+      padding: .8rem 1.2rem;
+      font-size: .78rem; letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .site-closed-badge::before {
+      content: '';
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      box-shadow: 0 0 16px var(--gold-light);
+    }
+
+    /* ─── DOWNLOAD FEEDBACK ─── */
+    .download-toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+      background: var(--ink);
+      border: 1px solid rgba(184,144,42,0.4);
+      color: var(--parchment);
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      animation: toastIn 0.3s ease;
+      max-width: 320px;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: none; }
     }
 
     /* ─── RESPONSIVE ─── */
@@ -692,81 +629,6 @@
       .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
       .form-row { grid-template-columns: 1fr; }
       footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
-    }
-    .site-closed-screen{
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      padding:2rem;
-      background:
-        radial-gradient(circle at top, rgba(184,144,42,0.18), transparent 30%),
-        linear-gradient(180deg, #0d0b08 0%, #17120b 100%);
-      color:var(--parchment);
-    }
-    .site-closed-card{
-      width:min(760px,100%);
-      background:rgba(245,240,232,0.06);
-      border:1px solid rgba(184,144,42,0.28);
-      border-radius:32px;
-      padding:3rem;
-      text-align:center;
-      box-shadow:0 24px 80px rgba(0,0,0,0.35);
-      backdrop-filter:blur(12px);
-    }
-    .site-closed-mark{
-      width:88px;
-      height:88px;
-      margin:0 auto 1.5rem;
-      border-radius:28px;
-      background:linear-gradient(135deg, rgba(184,144,42,0.95), rgba(212,168,67,0.72));
-      color:#1a130a;
-      display:grid;
-      place-items:center;
-      font-family:'Cinzel', serif;
-      font-size:2.4rem;
-      font-weight:600;
-    }
-    .site-closed-eyebrow{
-      font-size:.72rem;
-      letter-spacing:.32em;
-      text-transform:uppercase;
-      color:var(--gold-light);
-      margin-bottom:1rem;
-    }
-    .site-closed-title{
-      font-family:'Cormorant Garamond', serif;
-      font-size:clamp(2.8rem, 7vw, 5rem);
-      font-weight:300;
-      line-height:1;
-      margin-bottom:1rem;
-    }
-    .site-closed-text{
-      max-width:34rem;
-      margin:0 auto 1.6rem;
-      color:rgba(245,240,232,0.74);
-      font-size:1rem;
-      line-height:1.8;
-    }
-    .site-closed-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:.6rem;
-      border:1px solid rgba(184,144,42,0.28);
-      background:rgba(184,144,42,0.1);
-      color:var(--gold-light);
-      border-radius:999px;
-      padding:.8rem 1.2rem;
-      font-size:.78rem;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-    }
-    .site-closed-badge::before{
-      content:'';
-      width:9px;
-      height:9px;
-      border-radius:50%;
-      background:var(--gold-light);
-      box-shadow:0 0 16px var(--gold-light);
     }
   </style>
 </head>
@@ -786,65 +648,50 @@
   <!-- HERO -->
   <section id="hero">
     <div class="hero-bg-text">POLIO</div>
-
     <div class="hero-eyebrow">Librairie exclusive</div>
     <h1>Des œuvres qui <em>forgent</em> l'esprit</h1>
     <p class="hero-desc">
-      Une collection exeptionel de livres d'exception. Accédez aux titres avec vos crédits personnels, consultez votre solde à tout moment.
+      Une collection d'exception. Accédez aux titres avec vos crédits personnels, consultez votre solde à tout moment.
     </p>
     <div class="hero-actions">
       <a href="#catalogue" class="btn-primary">Découvrir le catalogue →</a>
       <a href="#credits" class="btn-outline">Vérifier mes crédits</a>
     </div>
-
     <div class="hero-scroll-hint">
       <div class="scroll-line"></div>
       <span>Défiler</span>
     </div>
   </section>
 
-  <!-- CREDITS CHECK -->
+  <!-- CREDITS / AUTH -->
   <section id="credits">
     <div class="credits-inner">
       <div>
         <div class="section-label">Espace client</div>
         <h2 class="section-title" style="color:var(--parchment)">Vérifiez<br>vos crédits</h2>
-        <p>Entrez votre numéro de carte client pour consulter votre solde de crédits disponibles et votre historique d'achats.</p>
+        <p>Connectez-vous avec vos identifiants pour accéder à votre espace personnel, consulter votre solde et télécharger vos livres.</p>
       </div>
-      <div class="credits-form" id="authSection">
-      <div id="loginForm">
+
+      <!-- Formulaire de connexion -->
+      <div id="loginForm" class="credits-form">
         <div class="credits-input-wrap">
           <input type="email" id="emailInput" placeholder="Votre email" autocomplete="email">
         </div>
-        <div class="credits-input-wrap" style="margin-top: 1rem;">
-          <input type="password" id="passwordInput" placeholder="Votre mot de passe">
+        <div class="credits-input-wrap">
+          <input type="password" id="passwordInput" placeholder="Votre mot de passe" autocomplete="current-password">
         </div>
-        <div class="credits-error" id="authError">✕ Erreur de connexion.</div>
-        <button class="btn-gold" style="margin-top: 1rem;" onclick="handleLogin()">Se connecter</button>
+        <div class="credits-error" id="authError"></div>
+        <button class="btn-gold" id="loginBtn" onclick="handleLogin()">Se connecter</button>
       </div>
 
-      <div id="userProfile" style="display: none;">
-        <p class="client-name" id="userName">—</p>
-        <div class="credit-count" id="userCredits">0</div>
-        <div class="credit-label">crédits disponibles</div>
-        <button class="btn-outline" style="margin-top: 1rem;" onclick="handleLogout()">Se déconnecter</button>
-      </div>
-    </div>
-      <div>
-        <div class="credits-form">
-          <div class="credits-input-wrap">
-            <input type="text" id="cardInput" placeholder="Numéro de carte  ex : 01" autocomplete="off">
-          </div>
-          <div class="credits-error" id="creditsError">
-            ✕ &nbsp;Carte introuvable. Vérifiez le numéro ou contactez-nous.
-          </div>
-          <button class="btn-gold" onclick="checkCredits()">Consulter mon solde</button>
-          <div class="credits-result" id="creditsResult">
-            <p class="client-name" id="resultName">—</p>
-            <div class="credit-count" id="resultCredits">0</div>
-            <div class="credit-label">crédits disponibles</div>
-          </div>
+      <!-- Profil connecté -->
+      <div id="userProfile" style="display:none;" class="credits-form">
+        <div class="credits-result visible">
+          <p class="client-name" id="userName">—</p>
+          <div class="credit-count" id="userCredits">0</div>
+          <div class="credit-label">crédits disponibles</div>
         </div>
+        <button class="btn-outline" onclick="handleLogout()">Se déconnecter</button>
       </div>
     </div>
   </section>
@@ -858,9 +705,7 @@
         Une sélection rigoureuse de livres acquérables avec vos crédits. Nouveaux titres à venir prochainement.
       </p>
     </div>
-
     <div class="catalogue-grid">
-      <!-- LIVRES CHARGÉS DEPUIS SUPABASE -->
       <div id="dynamic-books"></div>
     </div>
   </section>
@@ -878,29 +723,29 @@
         <div class="how-step fade-up">
           <div class="step-number">01</div>
           <div class="step-content">
-            <h4>Obtenez votre carte client</h4>
-            <p>Votre carte Polio vous est attribuée lors de votre inscription. Elle contient un numéro unique et un solde de crédits initial.</p>
+            <h4>Obtenez votre compte client</h4>
+            <p>Votre accès Polio vous est attribué lors de votre inscription. Un email et un mot de passe vous sont communiqués, avec un solde de crédits initial.</p>
           </div>
         </div>
         <div class="how-step fade-up">
           <div class="step-number">02</div>
           <div class="step-content">
-            <h4>Consultez votre solde</h4>
-            <p>À tout moment, entrez votre numéro de carte dans la section "Mes Crédits" pour vérifier votre solde disponible.</p>
+            <h4>Connectez-vous</h4>
+            <p>Dans la section "Mes Crédits", entrez votre email et mot de passe pour accéder à votre espace personnel et consulter votre solde.</p>
           </div>
         </div>
         <div class="how-step fade-up">
           <div class="step-number">03</div>
           <div class="step-content">
             <h4>Choisissez un livre</h4>
-            <p>Parcourez notre catalogue et sélectionnez un titre disponible. Chaque livre a un coût en crédits indiqué sur sa fiche.</p>
+            <p>Parcourez notre catalogue et sélectionnez un titre disponible. Chaque livre indique son coût en crédits sur sa fiche.</p>
           </div>
         </div>
         <div class="how-step fade-up">
           <div class="step-number">04</div>
           <div class="step-content">
-            <h4>Finalisez l'achat</h4>
-            <p>Contactez-nous ou rendez-vous en boutique pour valider l'échange. Vos crédits sont débités instantanément.</p>
+            <h4>Téléchargez</h4>
+            <p>Une fois connecté, cliquez sur "Télécharger". Vos crédits sont déduits instantanément et le fichier est disponible immédiatement.</p>
           </div>
         </div>
       </div>
@@ -913,16 +758,15 @@
       <div class="contact-info fade-up">
         <div class="section-label">Nous joindre</div>
         <h2 class="section-title">Contact</h2>
-        <p>Une question sur votre carte, un titre, ou une commande ? Nous sommes là pour vous. Réponse sous 24–48 h.</p>
+        <p>Une question sur votre compte, un titre, ou une commande ? Nous sommes là pour vous. Réponse sous 24–48 h.</p>
 
         <div class="contact-detail">
           <div class="contact-detail-icon">✉</div>
           <div class="contact-detail-text">
             <strong>Email</strong>
-            <a href="/cdn-cgi/l/email-protection#9ef9ebedeaffe8fbb0fcf1deeeecf1eaf1f0f3fff7f2b0fdf1f3"><span class="__cf_email__" data-cfemail="c6a1b3b5b2a7b0a3e8a4a986b6b4a9b2a9a8aba7afaae8a5a9ab">[email&#160;protected]</span></a>
+            <a href="mailto:contact@polio-editions.fr">contact@polio-editions.fr</a>
           </div>
         </div>
-
         <div class="contact-detail">
           <div class="contact-detail-icon">⏱</div>
           <div class="contact-detail-text">
@@ -930,7 +774,6 @@
             24 à 48 heures ouvrées
           </div>
         </div>
-
         <div class="contact-detail">
           <div class="contact-detail-icon">❓</div>
           <div class="contact-detail-text">
@@ -967,13 +810,13 @@
               <option>Solde de crédits</option>
               <option>Commande d'un livre</option>
               <option>Disponibilité d'un titre</option>
-              <option>Problème avec ma carte</option>
+              <option>Problème avec mon compte</option>
               <option>Autre</option>
             </select>
           </div>
           <div class="form-group">
             <label>Message</label>
-            <textarea required placeholder="Décrivez votre demande..."></textarea>
+            <textarea required placeholder="Décrivez votre demande…"></textarea>
           </div>
           <button type="submit" class="btn-gold">Envoyer le message →</button>
           <div class="form-success" id="formSuccess">
@@ -988,36 +831,78 @@
   <footer>
     <div class="footer-logo">P<span>✦</span>LIO</div>
     <p>© 2025 Polio Éditions — Tous droits réservés</p>
-    <a href="/cdn-cgi/l/email-protection#680f1d1b1c091e0d460a0728181a071c070605090104460b0705"><span class="__cf_email__" data-cfemail="ed8a989e998c9b88c38f82ad9d9f82998283808c8481c38e8280">[email&#160;protected]</span></a>
+    <a href="mailto:contact@polio-editions.fr">contact@polio-editions.fr</a>
   </footer>
 
   <script>
-    // ════════════════════════════════════════════════════
-    // ⚙ CONFIG
-    // ════════════════════════════════════════════════════
-
-    // Supabase — déjà configuré ✅
+    // ════════════════════════════════════════════════════════════════
+    // ⚙  CONFIG
+    // ════════════════════════════════════════════════════════════════
     const SUPABASE_URL  = 'https://comxzjhzpbwplibkfasw.supabase.co';
     const SUPABASE_KEY  = 'sb_publishable_0r8i0ntrXnvOMUomFu9pZA_4cmGf8vp';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Web3Forms — déjà configuré ✅ (notif vers gustave.bo@protonmail.com)
+    const db            = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const WEB3FORMS_KEY = '919f99e1-d0da-448d-b85b-17f03f4e87df';
 
-    // ════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
+    // 🔒  ÉTAPES DE SÉCURITÉ — Politiques RLS à activer sur Supabase
+    //     Collez ces requêtes dans l'éditeur SQL de votre projet :
+    //
+    //  -- 1. Clients : chaque utilisateur ne voit QUE son enregistrement
+    //  ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+    //  CREATE POLICY "clients_select_own" ON clients
+    //    FOR SELECT USING (auth.uid() = user_id);
+    //  CREATE POLICY "clients_update_own" ON clients
+    //    FOR UPDATE USING (auth.uid() = user_id);
+    //
+    //  -- 2. Books : lecture publique (catalogue visible sans connexion)
+    //  ALTER TABLE books ENABLE ROW LEVEL SECURITY;
+    //  CREATE POLICY "books_public_read" ON books
+    //    FOR SELECT USING (true);
+    //
+    //  -- 3. Contacts : insertion publique, aucune lecture client
+    //  ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
+    //  CREATE POLICY "contacts_insert_only" ON contacts
+    //    FOR INSERT WITH CHECK (true);
+    //
+    //  -- 4. Download_history : lecture/écriture limitées au propriétaire
+    //  ALTER TABLE download_history ENABLE ROW LEVEL SECURITY;
+    //  CREATE POLICY "downloads_own" ON download_history
+    //    FOR ALL USING (auth.uid() = user_id);
+    //
+    //  -- 5. Site_access : lecture publique uniquement
+    //  ALTER TABLE site_access ENABLE ROW LEVEL SECURITY;
+    //  CREATE POLICY "site_access_public" ON site_access
+    //    FOR SELECT USING (true);
+    //
+    //  -- 6. Storage bucket "books" : bucket PRIVÉ, URL signées uniquement
+    //     → Dashboard Supabase > Storage > books > désactiver "Public"
+    // ════════════════════════════════════════════════════════════════
 
-    // ─── INTERSECTION OBSERVER (fade-up) ───
+    // ─── État global ───
+    let currentUser   = null;
+    let loginAttempts = 0;
+    const MAX_ATTEMPTS = 5;
+    let lockedUntil   = null;  // timestamp de fin de blocage
+
+    // ════════════════════════════════════════════════════════════════
+    // INTERSECTION OBSERVER (animations fade-up)
+    // ════════════════════════════════════════════════════════════════
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           const siblings = e.target.parentElement?.querySelectorAll('.fade-up');
-          if (siblings) [...siblings].forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 120));
+          if (siblings) {
+            [...siblings].forEach((el, i) =>
+              setTimeout(() => el.classList.add('visible'), i * 120)
+            );
+          }
         }
       });
     }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-    // ─── COVER PATTERNS ───
+    // ════════════════════════════════════════════════════════════════
+    // CATALOGUE — CONSTRUCTION DES CARTES
+    // ════════════════════════════════════════════════════════════════
     const COVER_PATTERNS = {
       'cover-elite':   'linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%)',
       'cover-coming1': 'linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%)',
@@ -1025,14 +910,30 @@
       'cover-coming3': 'linear-gradient(160deg, #151208 0%, #251e0c 100%)',
     };
 
-    // ─── BUILD CARD HTML ───
-    function buildCard(book) {
+    /**
+     * buildCard — construit un élément DOM pour un livre.
+     * @param {Object} book       — données Supabase
+     * @param {boolean} isLoggedIn — affiche le bouton Télécharger si vrai
+     */
+    function buildCard(book, isLoggedIn) {
       const words = (book.title || '').split(' ');
       const half  = Math.ceil(words.length / 2);
       const line1 = words.slice(0, half).join(' ');
       const line2 = words.slice(half).join(' ');
       const card  = document.createElement('div');
       card.className = 'book-card fade-up';
+
+      const actionHtml = isLoggedIn
+        ? `<button
+              class="btn-primary"
+              style="padding:0.5rem 1rem;font-size:0.6rem;"
+              onclick="downloadBook('${book.id}', ${parseInt(book.credits) || 0}, '${(book.file_path || '').replace(/'/g,"\\'")}')">
+              Télécharger
+           </button>`
+        : `<span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">
+             Connexion requise
+           </span>`;
+
       card.innerHTML = `
         <div class="book-cover" style="background:${COVER_PATTERNS[book.color] || COVER_PATTERNS['cover-elite']}">
           <div class="book-cover-pattern"></div>
@@ -1050,13 +951,14 @@
               <span class="number">${book.credits || '—'}</span>
               <span class="label">crédits</span>
             </div>
-            <span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">En stock</span>
+            ${actionHtml}
           </div>
         </div>`;
+
       return card;
     }
 
-    // ─── CHARGER LES LIVRES DEPUIS SUPABASE ───
+    // ─── Chargement du catalogue depuis Supabase ───
     async function loadBooksFromDB() {
       try {
         const { data, error } = await db
@@ -1066,18 +968,107 @@
 
         if (error) throw error;
 
-        const container = document.getElementById('dynamic-books');
+        const anchor    = document.getElementById('dynamic-books');
+        const grid      = anchor.parentElement;
+        const isLogged  = !!currentUser;
+
+        // Supprimer les anciennes cartes (rechargement propre)
+        grid.querySelectorAll('.book-card').forEach(c => c.remove());
+
         (data || []).forEach(book => {
-          const card = buildCard(book);
-          container.parentElement.insertBefore(card, container);
-          requestAnimationFrame(() => card.classList.add('visible'));
+          const card = buildCard(book, isLogged);
+          grid.insertBefore(card, anchor);
+          requestAnimationFrame(() => {
+            observer.observe(card);
+            card.classList.add('visible');
+          });
         });
       } catch (err) {
-        console.warn('Supabase books load error:', err.message);
+        console.warn('Supabase books error:', err.message);
       }
     }
 
-    // ─── VÉRIFICATION CRÉDITS SUPABASE ───
+    // ════════════════════════════════════════════════════════════════
+    // TÉLÉCHARGEMENT SÉCURISÉ
+    // ════════════════════════════════════════════════════════════════
+    async function downloadBook(bookId, cost, filePath) {
+      // 1. Vérification de session
+      if (!currentUser) {
+        showToast('Vous devez être connecté pour télécharger.');
+        return;
+      }
+
+      // 2. Récupérer le solde actuel depuis la BDD
+      const { data: client, error: clientErr } = await db
+        .from('clients')
+        .select('credits, id')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (clientErr || !client) {
+        showToast('Impossible de vérifier votre solde.');
+        return;
+      }
+
+      const available = parseInt(client.credits) || 0;
+
+      // 3. Vérifier les crédits suffisants
+      if (available < cost) {
+        showToast(`Crédits insuffisants — il vous faut ${cost} crédit(s), vous en avez ${available}.`);
+        return;
+      }
+
+      // 4. Confirmation
+      if (!confirm(`Confirmer l'achat pour ${cost} crédit(s) ?`)) return;
+
+      // 5. Déduire les crédits (UPDATE atomique)
+      const { error: updateErr } = await db
+        .from('clients')
+        .update({ credits: available - cost })
+        .eq('user_id', currentUser.id);
+
+      if (updateErr) {
+        showToast('Erreur lors de la déduction des crédits. Réessayez.');
+        return;
+      }
+
+      // 6. Historique de téléchargement
+      await db.from('download_history').insert({
+        user_id:       currentUser.id,
+        book_id:       bookId,
+        credits_spent: cost,
+        downloaded_at: new Date().toISOString(),
+      });
+
+      // 7. Mettre à jour l'affichage du solde
+      const newCredits = available - cost;
+      document.getElementById('userCredits').textContent = newCredits;
+
+      // 8. URL signée Supabase Storage (valide 5 minutes)
+      if (filePath) {
+        const { data: urlData, error: urlErr } = await db.storage
+          .from('books')
+          .createSignedUrl(filePath, 300);
+
+        if (!urlErr && urlData?.signedUrl) {
+          const a = document.createElement('a');
+          a.href = urlData.signedUrl;
+          a.download = filePath.split('/').pop();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast('✓ Téléchargement lancé. Il vous reste ' + newCredits + ' crédit(s).');
+        } else {
+          showToast('Fichier bientôt disponible. Crédits déduits.');
+        }
+      } else {
+        showToast('Livre acquis. Notre équipe vous contactera pour la livraison.');
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // ACCÈS SITE (ouvert / fermé)
+    // ════════════════════════════════════════════════════════════════
     async function getClientAccessState() {
       try {
         const { data, error } = await db
@@ -1088,108 +1079,175 @@
         if (error) throw error;
         return (data && data[0]) ? data[0] : { is_open: true };
       } catch (err) {
-        console.warn('Supabase access load error:', err.message);
+        console.warn('Site access error:', err.message);
         return { is_open: true };
       }
     }
 
     function renderClosedScreen(accessState) {
-      const message = accessState.closed_message || 'Polio Client est momentanement ferme. Revenez bientot.';
+      const message = accessState.closed_message || 'Polio Client est momentanément fermé. Revenez bientôt.';
       document.body.innerHTML = `
         <div class="site-closed-screen">
           <div class="site-closed-card">
             <div class="site-closed-mark">P</div>
-            <div class="site-closed-eyebrow">Acces momentanement suspendu</div>
-            <h1 class="site-closed-title">Polio Client est ferme.</h1>
+            <div class="site-closed-eyebrow">Accès momentanément suspendu</div>
+            <h1 class="site-closed-title">Polio Client est fermé.</h1>
             <p class="site-closed-text">${message}</p>
-            <div class="site-closed-badge">Reouverture decidee depuis l'administration</div>
+            <div class="site-closed-badge">Réouverture décidée depuis l'administration</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
-    async function checkCredits() {
-      const raw     = document.getElementById('cardInput').value.trim();
-      const result  = document.getElementById('creditsResult');
-      const error   = document.getElementById('creditsError');
-      const nameEl  = document.getElementById('resultName');
-      const countEl = document.getElementById('resultCredits');
+    // ════════════════════════════════════════════════════════════════
+    // AUTHENTIFICATION
+    // ════════════════════════════════════════════════════════════════
 
-      result.classList.remove('visible');
-      error.classList.remove('visible');
-      if (!raw) return;
+    /** Vérifie si une session active existe déjà (rechargement de page) */
+    async function checkSession() {
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        await showUserProfile(session.user);
+      }
+    }
 
-      // Cherche tel quel — correspond exactement à ce qui est dans Supabase
-      const key = raw.trim();
-
-      const { data, error: sbErr } = await db
-        .from('clients')
-        .select('name, credits')
-        .eq('card_number', key)
-        .limit(1);
-
-      if (sbErr || !data || data.length === 0) {
-        error.classList.add('visible');
+    /** Connexion avec email/password + protection contre le brute-force */
+    async function handleLogin() {
+      // Vérifier le blocage temporaire
+      if (lockedUntil && Date.now() < lockedUntil) {
+        const secs = Math.ceil((lockedUntil - Date.now()) / 1000);
+        showAuthError(`Trop de tentatives. Réessayez dans ${secs} seconde(s).`);
         return;
       }
 
-      const client = data[0];
-      nameEl.textContent = client.name;
-      const total = parseInt(client.credits) || 0;
-      countEl.textContent = total;
-      result.classList.add('visible');
-      if (total > 0) {
-        let n = 0;
-        countEl.textContent = 0;
-        const iv = setInterval(() => {
-          n++;
-          countEl.textContent = n;
-          if (n >= total) clearInterval(iv);
-        }, Math.max(20, Math.floor(800 / total)));
+      const email    = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const btn      = document.getElementById('loginBtn');
+
+      clearAuthError();
+
+      if (!email || !password) {
+        showAuthError('Veuillez remplir l\'email et le mot de passe.');
+        return;
+      }
+
+      btn.textContent = 'Connexion…';
+      btn.disabled    = true;
+
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        loginAttempts++;
+
+        if (loginAttempts >= MAX_ATTEMPTS) {
+          // Blocage 5 minutes côté client
+          lockedUntil   = Date.now() + 5 * 60 * 1000;
+          loginAttempts = 0;
+          showAuthError('Compte temporairement bloqué après plusieurs échecs. Réessayez dans 5 min.');
+        } else {
+          const restants = MAX_ATTEMPTS - loginAttempts;
+          showAuthError(`Identifiants incorrects. (${restants} tentative(s) restante(s))`);
+        }
+
+        btn.textContent = 'Se connecter';
+        btn.disabled    = false;
+      } else {
+        loginAttempts = 0;
+        lockedUntil   = null;
+        currentUser   = data.user;
+        await showUserProfile(data.user);
       }
     }
 
-    document.getElementById('cardInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') checkCredits();
-    });
+    /** Déconnexion */
+    async function handleLogout() {
+      await db.auth.signOut();
+      currentUser = null;
 
-    // ─── CONTACT FORM ───
+      document.getElementById('userProfile').style.display = 'none';
+      document.getElementById('loginForm').style.display   = 'flex';
+      clearAuthError();
+
+      // Recharger le catalogue sans boutons télécharger
+      loadBooksFromDB();
+    }
+
+    /** Affiche le profil et le solde après connexion */
+    async function showUserProfile(user) {
+      document.getElementById('loginForm').style.display   = 'none';
+      document.getElementById('userProfile').style.display = 'flex';
+
+      const { data, error } = await db
+        .from('clients')
+        .select('name, credits')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        document.getElementById('userName').textContent = data.name;
+        animateCount(document.getElementById('userCredits'), parseInt(data.credits) || 0);
+      }
+
+      // Recharger le catalogue avec boutons télécharger
+      loadBooksFromDB();
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // FORMULAIRE DE CONTACT → BDD + Web3Forms
+    // ════════════════════════════════════════════════════════════════
     async function submitContact(e) {
       e.preventDefault();
-      const btn  = e.target.querySelector('button[type="submit"]');
-      const form = e.target;
-      const inputs   = form.querySelectorAll('input[type="text"]');
-      const prenom   = inputs[0]?.value || '';
-      const nom      = inputs[1]?.value || '';
-      const email    = form.querySelector('input[type="email"]')?.value || '';
-      const carte    = inputs[2]?.value || '—';
-      const sujet    = form.querySelector('select')?.value || 'Message client';
-      const message  = form.querySelector('textarea')?.value || '';
+      const btn     = e.target.querySelector('button[type="submit"]');
+      const form    = e.target;
+      const inputs  = form.querySelectorAll('input[type="text"]');
+      const prenom  = inputs[0]?.value.trim() || '';
+      const nom     = inputs[1]?.value.trim() || '';
+      const email   = form.querySelector('input[type="email"]')?.value.trim() || '';
+      const carte   = inputs[2]?.value.trim() || '—';
+      const sujet   = form.querySelector('select')?.value || 'Message client';
+      const message = form.querySelector('textarea')?.value.trim() || '';
 
       btn.textContent = 'Envoi en cours…';
       btn.disabled    = true;
 
       try {
-        const res = await fetch('https://api.web3forms.com/submit', {
+        // ── 1. Notification email via Web3Forms ──
+        const res  = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            access_key: '919f99e1-d0da-448d-b85b-17f03f4e87df',
+            access_key: WEB3FORMS_KEY,
             subject:    '[Polio Contact] ' + sujet,
             from_name:  prenom + ' ' + nom,
-            email:      email,
+            email,
             replyto:    email,
-            message:    'De : ' + prenom + ' ' + nom + '\nEmail : ' + email + '\nCarte : ' + carte + '\nSujet : ' + sujet + '\n\n' + message,
-          })
+            message:    `De : ${prenom} ${nom}\nEmail : ${email}\nCarte : ${carte}\nSujet : ${sujet}\n\n${message}`,
+          }),
         });
         const json = await res.json();
-        if (json.success) {
-          document.getElementById('formSuccess').classList.add('visible');
-          form.reset();
-        } else {
-          throw new Error(json.message || 'Erreur inconnue');
+        if (!json.success) throw new Error(json.message || 'Erreur Web3Forms');
+
+        // ── 2. Sauvegarde en BDD Supabase (table: contacts) ──
+        //    Schéma minimal : prenom, nom, email, carte_numero, sujet, message, user_id, created_at
+        const { error: dbErr } = await db.from('contacts').insert({
+          prenom,
+          nom,
+          email,
+          carte_numero: carte !== '—' ? carte : null,
+          sujet,
+          message,
+          user_id:     currentUser?.id || null,
+          created_at:  new Date().toISOString(),
+        });
+
+        if (dbErr) {
+          // On ne bloque pas l'UX si la BDD échoue — l'email est déjà parti
+          console.warn('Contact BDD insert error:', dbErr.message);
         }
-      } catch(err) {
+
+        document.getElementById('formSuccess').classList.add('visible');
+        form.reset();
+      } catch (err) {
         alert('Erreur : ' + err.message);
       }
 
@@ -1197,131 +1255,66 @@
       btn.disabled    = false;
     }
 
-    // ─── INIT ───
-    (async function initClient(){
+    // ════════════════════════════════════════════════════════════════
+    // UTILITAIRES
+    // ════════════════════════════════════════════════════════════════
+    function showAuthError(msg) {
+      const el = document.getElementById('authError');
+      el.textContent = '✕  ' + msg;
+      el.classList.add('visible');
+    }
+
+    function clearAuthError() {
+      const el = document.getElementById('authError');
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    function animateCount(el, target) {
+      if (target <= 0) { el.textContent = target; return; }
+      let n = 0;
+      el.textContent = 0;
+      const iv = setInterval(() => {
+        n++;
+        el.textContent = n;
+        if (n >= target) clearInterval(iv);
+      }, Math.max(20, Math.floor(800 / target)));
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className   = 'download-toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // INIT
+    // ════════════════════════════════════════════════════════════════
+    (async function init() {
+      // Vérifier si le site est ouvert
       const accessState = await getClientAccessState();
       if (accessState && accessState.is_open === false) {
         renderClosedScreen(accessState);
         return;
       }
-      loadBooksFromDB();
+
+      // Lancer les animations
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+      // Touche Entrée sur le champ password
+      document.getElementById('passwordInput')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin();
+      });
+
+      // Vérifier session existante puis charger le catalogue
+      await checkSession();
+      if (!currentUser) {
+        // Catalogue visible même sans connexion (pas les boutons de DL)
+        loadBooksFromDB();
+      }
     })();
-// Vérifier si un utilisateur est déjà connecté au chargement de la page
-async function checkSession() {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    showUserProfile(session.user);
-  }
-}
-
-// Fonction de connexion
-async function handleLogin() {
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  const errorEl = document.getElementById('authError');
-  
-  errorEl.classList.remove('visible');
-
-  const { data, error } = await db.auth.signInWithPassword({
-    email: email,
-    password: password,
-  });
-
-  if (error) {
-    errorEl.textContent = "✕ Identifiants incorrects.";
-    errorEl.classList.add('visible');
-  } else {
-    showUserProfile(data.user);
-  }
-}
-
-// Fonction de déconnexion
-async function handleLogout() {
-  await db.auth.signOut();
-  document.getElementById('userProfile').style.display = 'none';
-  document.getElementById('loginForm').style.display = 'block';
-  // Recharger les livres pour cacher les boutons de téléchargement
-  loadBooksFromDB(); 
-}
-
-// Afficher le profil et récupérer les crédits
-async function showUserProfile(user) {
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('userProfile').style.display = 'block';
-  
-  // Récupérer les infos du client lié à cet utilisateur
-  const { data, error } = await db
-    .from('clients')
-    .select('name, credits')
-    .eq('user_id', user.id) // Assurez-vous d'avoir cette colonne !
-    .single();
-
-  if (data) {
-    document.getElementById('userName').textContent = data.name;
-    document.getElementById('userCredits').textContent = data.credits;
-  }
-  
-  // Recharger le catalogue pour afficher les boutons "Télécharger"
-  loadBooksFromDB();
-}
-
-// Appeler checkSession au démarrage
-checkSession();
-async function buildCard(book) {
-  // ... votre code existant pour le titre et le design ...
-
-  // Vérifier si l'utilisateur est connecté
-  const { data: { session } } = await db.auth.getSession();
-  let actionButtonHtml = '';
-
-  if (session) {
-    // Si connecté, on propose de dépenser des crédits ou de télécharger directement
-    actionButtonHtml = `<button class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.6rem;" onclick="downloadBook('${book.id}', '${book.file_path}')">Télécharger</button>`;
-  } else {
-    actionButtonHtml = `<span style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">Connectez-vous</span>`;
-  }
-
-  const card = document.createElement('div');
-  card.className = 'book-card fade-up';
-  card.innerHTML = `
-    <div class="book-info">
-      <h3>${book.title}</h3>
-      <div class="author">${book.author || 'Polio Éditions'}</div>
-      <p class="description">${book.description || book.desc || 'Un ouvrage de la collection Polio.'}</p>
-      <div class="book-footer">
-        <div class="book-credits">
-          <span class="number">${book.credits || '—'}</span>
-          <span class="label">crédits</span>
-        </div>
-        ${actionButtonHtml}
-      </div>
-    </div>`;
-  return card;
-}
-async function downloadBook(bookId, filePath) {
-  if (!filePath) {
-    alert("Version numérique indisponible pour le moment.");
-    return;
-  }
-
-  // Ici, vous devriez idéalement appeler une "Edge Function" Supabase 
-  // ou faire une transaction pour vérifier les crédits, les déduire, 
-  // et enregistrer l'achat avant de donner le lien.
-  
-  // Pour la démonstration (générer un lien signé valide 60 secondes) :
-  const { data, error } = await db
-    .storage
-    .from('ebooks')
-    .createSignedUrl(filePath, 60);
-
-  if (error) {
-    alert("Erreur lors du téléchargement. Avez-vous les accès ?");
-    return;
-  }
-
-  // Ouvrir le téléchargement
-  window.open(data.signedUrl, '_blank');
-}
   </script>
 </body>
 </html>
