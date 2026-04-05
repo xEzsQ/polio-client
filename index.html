@@ -1007,27 +1007,32 @@
     }
 
     // ─── CHARGER LES LIVRES DEPUIS SUPABASE ───
-    async function loadBooksFromDB() {
-      try {
-        const { data, error } = await db
-          .from('books')
-          .select('*')
-          .order('created_at', { ascending: true });
-    
-        if (error) throw error;
-    
-        const container = document.getElementById('dynamic-books');
-        container.innerHTML = ''; // ON VIDE LE CONTENEUR AVANT DE REMPLIR
-    
-        (data || []).forEach(book => {
-          const card = buildCard(book);
-          container.appendChild(card); // On ajoute dedans
-          requestAnimationFrame(() => card.classList.add('visible'));
-        });
-      } catch (err) {
-        console.warn('Supabase books load error:', err.message);
-      }
+      async function loadBooksFromDB() {
+    try {
+      const { data, error } = await db
+        .from('books')
+        .select('*')
+        .order('created_at', { ascending: true });
+  
+      if (error) throw error;
+  
+      const container = document.getElementById('dynamic-books');
+      
+      // NETTOYAGE : On vide le conteneur pour éviter les doublons
+      container.innerHTML = ''; 
+  
+      (data || []).forEach(book => {
+        const card = buildCard(book);
+        // On utilise appendChild pour mettre la carte DANS le conteneur
+        container.appendChild(card);
+        
+        // On force l'affichage
+        setTimeout(() => card.classList.add('visible'), 50);
+      });
+    } catch (err) {
+      console.warn('Supabase books load error:', err.message);
     }
+  }
 
     // ─── VÉRIFICATION CRÉDITS SUPABASE ───
     async function checkCredits() {
