@@ -1146,7 +1146,7 @@ async function checkGlobalAccess() {
 // Modifier la section INIT à la fin de ton script :
 async function init() {
   await checkGlobalAccess(); // On vérifie d'abord l'accès
-  loadBooksFromDB();        // Puis on charge les livres
+  loadBooksFromDB();         // On charge les livres UNE SEULE FOIS ici
 }
 
 init();
