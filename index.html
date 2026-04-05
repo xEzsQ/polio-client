@@ -1013,13 +1013,15 @@
           .from('books')
           .select('*')
           .order('created_at', { ascending: true });
-
+    
         if (error) throw error;
-
+    
         const container = document.getElementById('dynamic-books');
+        container.innerHTML = ''; // ON VIDE LE CONTENEUR AVANT DE REMPLIR
+    
         (data || []).forEach(book => {
           const card = buildCard(book);
-          container.parentElement.insertBefore(card, container);
+          container.appendChild(card); // On ajoute dedans
           requestAnimationFrame(() => card.classList.add('visible'));
         });
       } catch (err) {
