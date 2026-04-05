@@ -1017,22 +1017,20 @@
   
       const container = document.getElementById('dynamic-books');
       
-      // 1. On vide le conteneur pour éviter les doublons
+      // On vide pour éviter les doublons au rafraîchissement
       container.innerHTML = ''; 
   
-      (data || []).forEach(book => {
-        // 2. On crée la carte
-        const card = buildCard(book);
-        
-        // 3. IMPORTANT : On l'ajoute DANS le container
-        // Cela en fait un enfant direct de la grille CSS
-        container.appendChild(card);
-        
-        // Animation d'apparition
-        setTimeout(() => card.classList.add('visible'), 100);
-      });
+      if (data && data.length > 0) {
+        data.forEach(book => {
+          const card = buildCard(book);
+          // On l'ajoute DANS la grille
+          container.appendChild(card);
+          // On déclenche l'animation
+          setTimeout(() => card.classList.add('visible'), 100);
+        });
+      }
     } catch (err) {
-      console.warn('Erreur Supabase :', err.message);
+      console.warn('Erreur de chargement des livres:', err.message);
     }
   }
 
