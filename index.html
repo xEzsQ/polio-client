@@ -977,6 +977,20 @@
         </div>
       </div>
 
+      <div class="buy-step" id="step-5">
+        <p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">
+          Merci ! Indiquez votre adresse e-mail pour recevoir la confirmation de votre commande.
+        </p>
+        <div>
+          <label>Adresse e-mail</label>
+          <input type="email" id="buy-email" placeholder="votre@email.com" autocomplete="off">
+        </div>
+        <div class="modal-err" id="buy-err-4">✕ &nbsp;Veuillez saisir une adresse e-mail valide.</div>
+        <div class="modal-actions">
+          <button class="btn-modal-primary" onclick="buyFinalConfirm()">Confirmer l'achat →</button>
+        </div>
+      </div>
+
       <!-- ÉTAPE 5 : succès -->
       <div class="buy-step" id="step-5">
         <div class="modal-success">
@@ -1615,6 +1629,42 @@ async function checkGlobalAccess() {
       if (n === 3) showStep3();
     };
 
+init();
+    async function startInfiniteCheck() {
+  // 1. Vérifie si le site vient d'être fermé ou ouvert par l'admin
+  await checkGlobalAccess();
+
+  // 2. Si l'utilisateur a déjà consulté ses crédits, on les actualise en silence
+  const cardInput = document.getElementById('cardInput');
+  const resultBox = document.getElementById('creditsResult');
+  
+  if (resultBox.classList.contains('visible') && cardInput.value.trim() !== "") {
+    try {
+      const { data } = await db
+        .from('clients')
+        .select('credits')
+        .eq('card_number', cardInput.value.trim())
+        .single();
+      
+      if (data) {
+        document.getElementById('resultCredits').textContent = data.credits;
+      }
+    } catch (e) {
+      console.error("Erreur d'actualisation auto:", e);
+    }
+  }
+}
+
+// Lancement de la boucle : s'exécute toutes les 10 secondes (10000ms)
+// On utilise setInterval pour que la vérification ne s'arrête jamais
+setInterval(startInfiniteCheck, 10000);
+    async function init() {
+  await loadBooksFromDB();   // Charge les livres
+  await checkGlobalAccess(); // Vérifie l'accès immédiat
+  // Vous pouvez ajouter d'autres fonctions d'initialisation ici
+}
+
+// Lancement officiel
 init();
   </script>
 </body>
