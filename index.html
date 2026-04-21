@@ -961,22 +961,22 @@
           <button class="btn-modal-outline" onclick="buyChooseDelivery(false)">Non, merci</button>
         </div>
       </div>
-
-      <!-- ÉTAPE 4 : email (si pas de livraison) -->
+      
       <div class="buy-step" id="step-4">
         <p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">
-          Merci ! Indiquez votre adresse e-mail pour recevoir la confirmation de votre commande.
+             Veuillez indiquer votre adresse pour la livraison :
         </p>
         <div>
-          <label>Adresse e-mail</label>
-          <input type="email" id="buy-email" placeholder="votre@email.com" autocomplete="off">
+          <label>Adresse postale</label>
+          <input type=adresse" id="buy-adresse" placeholder="mon adresse postale France" autocomplete="off">
         </div>
-        <div class="modal-err" id="buy-err-4">✕ &nbsp;Veuillez saisir une adresse e-mail valide.</div>
+        <div class="modal-err" id="buy-err-4">✕ &nbsp;Veuillez saisir une adresse postale valide.</div>
         <div class="modal-actions">
-          <button class="btn-modal-primary" onclick="buyFinalConfirm()">Confirmer l'achat →</button>
+          <button class="btn-modal-primary" onclick="buyFinalConfirm()">Confirmer l'adresse →</button>
         </div>
       </div>
-
+      
+      <!-- ÉTAPE 4 : email (si pas de livraison) -->
       <div class="buy-step" id="step-5">
         <p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">
           Merci ! Indiquez votre adresse e-mail pour recevoir la confirmation de votre commande.
@@ -991,8 +991,10 @@
         </div>
       </div>
 
+    
+
       <!-- ÉTAPE 5 : succès -->
-      <div class="buy-step" id="step-5">
+      <div class="buy-step" id="step-6">
         <div class="modal-success">
           <div class="check">✦</div>
           <h3 style="margin-bottom:0.8rem;">Commande confirmée</h3>
