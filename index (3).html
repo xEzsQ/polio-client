@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polio — Librairie</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --ink: #0d0b08; --parchment: #f5f0e8; --cream: #faf7f2;
+      --gold: #b8902a; --gold-light: #d4a843; --rust: #8b3a2a;
+      --muted: #6b6357; --border: rgba(184,144,42,0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--ink); overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; }
+
+    /* FERMETURE */
+    #closed-overlay { position: fixed; inset: 0; z-index: 9999; background: var(--parchment); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+    #closed-overlay .lock-icon { font-family: 'Cinzel', serif; font-size: 4rem; color: var(--gold); margin-bottom: 2rem; border: 1px solid var(--border); width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+    #closed-overlay h2 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--ink); margin-bottom: 1rem; }
+    #closed-overlay p { font-family: 'Jost', sans-serif; color: var(--muted); max-width: 40ch; line-height: 1.6; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 4rem; background: rgba(245,240,232,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 0.3em; color: var(--ink); text-transform: uppercase; }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.25s; }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* HERO */
+    #hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 8rem 4rem 4rem; overflow: hidden; }
+    .hero-bg-text { position: absolute; right: -2rem; top: 50%; transform: translateY(-50%) rotate(-90deg); font-family: 'Cinzel', serif; font-size: clamp(6rem, 18vw, 16rem); font-weight: 600; color: transparent; -webkit-text-stroke: 1px rgba(184,144,42,0.12); white-space: nowrap; pointer-events: none; user-select: none; }
+    .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+    .hero-eyebrow::before { content: ''; display: inline-block; width: 2.5rem; height: 1px; background: var(--gold); }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300; line-height: 1.0; color: var(--ink); max-width: 14ch; margin-bottom: 2rem; }
+    h1 em { font-style: italic; color: var(--gold); }
+    .hero-desc { font-size: 1rem; font-weight: 300; line-height: 1.8; color: var(--muted); max-width: 44ch; margin-bottom: 3rem; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 0.8rem; background: var(--ink); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; padding: 1rem 2.5rem; border: none; cursor: pointer; transition: background 0.3s, transform 0.2s; }
+    .btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
+    .btn-outline { display: inline-flex; align-items: center; gap: 0.8rem; background: transparent; color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; padding: 1rem 2.5rem; border: 1px solid var(--ink); cursor: pointer; transition: all 0.3s; }
+    .btn-outline:hover { background: var(--ink); color: var(--parchment); }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+    .scroll-line { width: 1px; height: 3rem; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+    @keyframes scrollPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    section { position: relative; z-index: 1; }
+    .section-label { font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .section-label::before { content: ''; display: inline-block; width: 2rem; height: 1px; background: var(--gold); }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.1; margin-bottom: 1.5rem; }
+
+    /* CREDITS */
+    #credits { background: var(--ink); color: var(--parchment); padding: 6rem 4rem; }
+    .credits-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    #credits .section-label { color: var(--gold-light); }
+    #credits .section-title { color: var(--parchment); }
+    #credits p { font-weight: 300; line-height: 1.8; color: rgba(245,240,232,0.65); margin-bottom: 2rem; }
+    .credits-form { display: flex; flex-direction: column; gap: 1rem; }
+    .credits-input-wrap input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(184,144,42,0.3); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.9rem; padding: 1rem 1.5rem; letter-spacing: 0.1em; outline: none; transition: border-color 0.3s; }
+    .credits-input-wrap input::placeholder { color: rgba(245,240,232,0.3); }
+    .credits-input-wrap input:focus { border-color: var(--gold); }
+    .btn-gold { background: var(--gold); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; padding: 1rem 2rem; border: none; cursor: pointer; transition: background 0.3s, transform 0.2s; align-self: flex-start; }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .credits-result { display: none; background: rgba(184,144,42,0.12); border: 1px solid rgba(184,144,42,0.3); padding: 1.5rem; margin-top: 0.5rem; }
+    .credits-result.visible { display: block; }
+    .credits-result .client-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--parchment); margin-bottom: 0.5rem; }
+    .credits-result .credit-count { font-size: 2.5rem; font-family: 'Cinzel', serif; color: var(--gold); }
+    .credits-result .credit-label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.5); }
+    .credits-error { display: none; color: #e07060; font-size: 0.85rem; padding: 0.75rem 0; }
+    .credits-error.visible { display: block; }
+    .btn-recharge { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: var(--gold); border: 1px solid rgba(184,144,42,0.4); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.7rem 1.4rem; cursor: pointer; transition: all 0.25s; align-self: flex-start; }
+    .btn-recharge:hover { background: rgba(184,144,42,0.15); border-color: var(--gold); }
+
+    /* CATALOGUE */
+    #catalogue { padding: 7rem 4rem; background: var(--parchment); }
+    .catalogue-header { max-width: 1100px; margin: 0 auto 4rem; }
+    .catalogue-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2.5rem; }
+    .book-card { position: relative; background: var(--cream); border: 1px solid var(--border); overflow: hidden; transition: transform 0.35s, box-shadow 0.35s; }
+    .book-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(13,11,8,0.12); }
+    .book-cover { position: relative; width: 100%; aspect-ratio: 3/4; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 2rem 1.8rem; }
+    .book-cover-pattern { position: absolute; inset: 0; opacity: 0.15; }
+    .cover-elite { background: linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%); }
+    .cover-elite .book-cover-pattern { background-image: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(184,144,42,0.3) 12px, rgba(184,144,42,0.3) 13px), repeating-linear-gradient(-45deg, transparent, transparent 12px, rgba(184,144,42,0.15) 12px, rgba(184,144,42,0.15) 13px); }
+    .cover-coming1 { background: linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%); }
+    .cover-coming2 { background: linear-gradient(160deg, #0d1520 0%, #142030 100%); }
+    .cover-coming3 { background: linear-gradient(160deg, #151208 0%, #251e0c 100%); }
+    .book-cover-ornament { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0.08; user-select: none; }
+    .book-cover-title { position: relative; z-index: 1; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; font-style: italic; color: var(--gold); line-height: 1.2; margin-bottom: 0.5rem; }
+    .book-cover-author { position: relative; z-index: 1; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(245,240,232,0.45); }
+    .book-badge { position: absolute; top: 1rem; right: 1rem; z-index: 2; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.35rem 0.75rem; }
+    .badge-available { background: var(--gold); color: var(--ink); }
+    .badge-soon { background: rgba(245,240,232,0.12); color: rgba(245,240,232,0.5); border: 1px solid rgba(245,240,232,0.15); backdrop-filter: blur(4px); }
+    .book-info { padding: 1.5rem 1.8rem 1.8rem; }
+    .book-info h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.4rem; }
+    .book-info .author { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.8rem; }
+    .book-info .description { font-size: 0.82rem; line-height: 1.7; color: var(--muted); font-weight: 300; margin-bottom: 1.2rem; }
+    .book-footer { display: flex; align-items: center; justify-content: space-between; }
+    .book-credits .number { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold); }
+    .book-credits .label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .book-status-text { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-style: italic; }
+    .btn-buy { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gold); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.65rem 1.4rem; border: none; cursor: pointer; transition: background 0.25s, transform 0.2s; }
+    .btn-buy:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* HOW */
+    #how { padding: 7rem 4rem; background: var(--cream); }
+    .how-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 6rem; align-items: start; }
+    .how-steps { display: flex; flex-direction: column; }
+    .how-step { display: flex; gap: 1.5rem; padding: 2rem 0; border-bottom: 1px solid var(--border); }
+    .step-number { font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 400; color: var(--border); min-width: 2.5rem; line-height: 1; transition: color 0.3s; }
+    .how-step:hover .step-number { color: var(--gold); }
+    .step-content h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.5rem; }
+    .step-content p { font-size: 0.85rem; line-height: 1.75; color: var(--muted); font-weight: 300; }
+
+    /* CONTACT */
+    #contact { padding: 7rem 4rem; background: var(--parchment); }
+    .contact-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 5rem; align-items: start; }
+    .contact-info p { font-size: 0.9rem; line-height: 1.8; color: var(--muted); font-weight: 300; margin-bottom: 2rem; }
+    .contact-detail { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; }
+    .contact-detail-icon { width: 2rem; height: 2rem; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+    .contact-detail-text { font-size: 0.85rem; line-height: 1.6; color: var(--muted); }
+    .contact-detail-text strong { display: block; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 0.2rem; }
+    .contact-detail-text a { color: var(--ink); text-decoration: none; transition: color 0.25s; }
+    .contact-detail-text a:hover { color: var(--gold); }
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+    .form-group input, .form-group textarea, .form-group select { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300; padding: 0.9rem 1.2rem; outline: none; transition: border-color 0.3s; resize: none; appearance: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold); }
+    .form-group textarea { min-height: 120px; line-height: 1.7; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-success { display: none; background: rgba(184,144,42,0.1); border: 1px solid rgba(184,144,42,0.3); padding: 1.2rem 1.5rem; font-size: 0.85rem; color: var(--gold); }
+    .form-success.visible { display: block; }
+
+    /* FOOTER */
+    footer { background: var(--ink); color: rgba(245,240,232,0.4); padding: 2.5rem 4rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid rgba(184,144,42,0.2); }
+    .footer-logo { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.3em; color: var(--parchment); }
+    .footer-logo span { color: var(--gold); }
+    footer p { font-size: 0.72rem; letter-spacing: 0.1em; }
+    footer a { color: var(--gold); text-decoration: none; font-size: 0.72rem; }
+    .ornamental-divider { text-align: center; font-size: 0.9rem; color: var(--gold); opacity: 0.5; letter-spacing: 0.5em; padding: 0 4rem; overflow: hidden; }
+    .ornamental-divider::before, .ornamental-divider::after { content: ''; display: inline-block; vertical-align: middle; width: 30%; height: 1px; background: var(--border); margin: 0 1.5rem; }
+
+    /* ANIMATIONS */
+    .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    /* MODAL ACHAT */
+    #buy-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(13,11,8,0.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+    #buy-overlay.open { display: flex; }
+    #buy-modal { background: var(--parchment); border: 1px solid var(--border); width: 100%; max-width: 480px; padding: 2.5rem 2.8rem; position: relative; animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    #buy-modal .modal-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; cursor: pointer; font-size: 1.3rem; color: var(--muted); transition: color 0.2s; }
+    #buy-modal .modal-close:hover { color: var(--ink); }
+    .modal-eyebrow { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem; }
+    .modal-eyebrow::before { content: ''; display: inline-block; width: 1.5rem; height: 1px; background: var(--gold); }
+    #buy-modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 300; color: var(--ink); margin-bottom: 0.4rem; }
+    .modal-book-info { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 1.8rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--border); }
+    .modal-book-info strong { color: var(--gold); font-family: 'Cinzel', serif; }
+    .buy-step { display: none; flex-direction: column; gap: 1rem; }
+    .buy-step.active { display: flex; }
+    .buy-step label { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+    .buy-step input, .buy-step select { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 300; padding: 0.85rem 1.1rem; outline: none; transition: border-color 0.3s; width: 100%; appearance: none; }
+    .buy-step input:focus, .buy-step select:focus { border-color: var(--gold); }
+    .modal-err { color: #c0503a; font-size: 0.82rem; background: rgba(192,80,58,0.08); border: 1px solid rgba(192,80,58,0.25); padding: 0.7rem 1rem; display: none; }
+    .modal-err.show { display: block; }
+    .modal-info-box { background: rgba(184,144,42,0.1); border: 1px solid var(--border); padding: 1rem 1.2rem; font-size: 0.83rem; line-height: 1.65; color: var(--ink); }
+    .modal-info-box .big { font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--gold); display: block; margin-bottom: 0.15rem; }
+    .modal-info-box .sub { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .modal-ok { color: #4a7c59; font-weight: 500; font-size: 0.82rem; }
+    .modal-warn { color: #c0503a; font-weight: 500; font-size: 0.82rem; }
+    .modal-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .btn-modal-primary { flex: 1; background: var(--ink); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.85rem 1.4rem; border: none; cursor: pointer; transition: background 0.25s; }
+    .btn-modal-primary:hover { background: var(--gold); color: var(--ink); }
+    .btn-modal-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-modal-outline { flex: 1; background: transparent; color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.85rem 1.4rem; border: 1px solid var(--ink); cursor: pointer; transition: all 0.25s; }
+    .btn-modal-outline:hover { background: var(--ink); color: var(--parchment); }
+    .step-indicator { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .step-dot { width: 5px; height: 5px; background: var(--border); transition: background 0.3s; }
+    .step-dot.active { background: var(--gold); }
+    .modal-success { text-align: center; padding: 1rem 0; }
+    .modal-success .check { font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem; }
+    .modal-success p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+    /* CRÉNEAUX */
+    .creneau-option { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--cream); cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 0.4rem; }
+    .creneau-option:hover:not(.disabled) { border-color: var(--gold); background: rgba(184,144,42,0.05); }
+    .creneau-option.selected { border-color: var(--gold); background: rgba(184,144,42,0.1); }
+    .creneau-option.disabled { opacity: 0.4; cursor: not-allowed; }
+    .creneau-label { font-size: 0.85rem; }
+    .creneau-dispo { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); }
+    .creneau-dispo.full { color: var(--rust); }
+
+    /* MODAL RECHARGE */
+    #recharge-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(13,11,8,0.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+    #recharge-overlay.open { display: flex; }
+    #recharge-modal { background: var(--parchment); border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 2.5rem 2.8rem; position: relative; animation: modalIn 0.3s ease; }
+    #recharge-modal .modal-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; cursor: pointer; font-size: 1.3rem; color: var(--muted); transition: color 0.2s; }
+    #recharge-modal .modal-close:hover { color: var(--ink); }
+    #recharge-modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .recharge-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .recharge-form label { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+    .recharge-form input { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 300; padding: 0.85rem 1.1rem; outline: none; transition: border-color 0.3s; width: 100%; }
+    .recharge-form input:focus { border-color: var(--gold); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+      #hero { padding: 7rem 1.5rem 4rem; }
+      #credits { padding: 5rem 1.5rem; } .credits-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      #catalogue { padding: 5rem 1.5rem; }
+      #how { padding: 5rem 1.5rem; } .how-inner { grid-template-columns: 1fr; gap: 2rem; }
+      #contact { padding: 5rem 1.5rem; } .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+      #buy-modal { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="closed-overlay">
+    <div class="lock-icon">P</div>
+    <h2 id="closed-title">Polio est fermé</h2>
+    <p id="closed-message-display">La librairie Polio est momentanément indisponible. Veuillez repasser plus tard.</p>
+  </div>
+
+  <!-- MODAL RECHARGE -->
+  <div id="recharge-overlay">
+    <div id="recharge-modal">
+      <button class="modal-close" onclick="closeRechargeModal()">✕</button>
+      <div class="modal-eyebrow">Recharge</div>
+      <h3>Ajouter des crédits</h3>
+      <div class="recharge-form">
+        <div><label>Code cadeau</label><input type="text" id="recharge-code" placeholder="PLO-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.2em;"></div>
+        <div><label>Numéro de carte</label><input type="text" id="recharge-card" placeholder="ex : 01" autocomplete="off"></div>
+        <div class="modal-err" id="recharge-err">✕ &nbsp;Code invalide, déjà utilisé, ou carte introuvable.</div>
+        <div class="modal-actions"><button class="btn-modal-primary" id="btn-recharge" onclick="validerCodeCadeau()">+ Ajouter les crédits</button></div>
+        <div id="recharge-success" style="display:none;background:rgba(74,124,89,0.1);border:1px solid rgba(74,124,89,0.3);padding:0.8rem 1rem;font-size:0.85rem;color:#4a7c59;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ACHAT -->
+  <div id="buy-overlay">
+    <div id="buy-modal">
+      <button class="modal-close" onclick="closeBuyModal()">✕</button>
+      <div class="modal-eyebrow">Achat sécurisé</div>
+      <h3 id="modal-book-title">Titre du livre</h3>
+      <div class="modal-book-info">
+        Coût : <strong id="modal-book-credits">—</strong> crédits
+        <span id="modal-book-credits-delivery" style="display:none"> → <strong id="modal-book-credits-post">—</strong> crédits avec livraison</span>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+        <div class="step-dot" id="dot-4"></div>
+        <div class="step-dot" id="dot-5"></div>
+        <div class="step-dot" id="dot-6"></div>
+      </div>
+
+      <!-- ÉTAPE 1 : carte + nom -->
+      <div class="buy-step active" id="step-1">
+        <div><label>Numéro de carte</label><input type="text" id="buy-card" placeholder="ex : 01" autocomplete="off"></div>
+        <div><label>Nom du titulaire</label><input type="text" id="buy-name" placeholder="ex : Jean Dupont" autocomplete="off"></div>
+        <div class="modal-err" id="buy-err-1">✕ &nbsp;Carte introuvable ou nom incorrect.</div>
+        <div class="modal-actions"><button class="btn-modal-primary" id="btn-step1" onclick="buyStep1()">Vérifier ma carte →</button></div>
+      </div>
+
+      <!-- ÉTAPE 2 : solde -->
+      <div class="buy-step" id="step-2">
+        <div class="modal-info-box"><span class="big" id="step2-credits">—</span><span class="sub">crédits disponibles</span></div>
+        <div id="step2-status"></div>
+        <div class="modal-actions" id="step2-actions"></div>
+      </div>
+
+      <!-- ÉTAPE 3 : livraison (toujours affichée) -->
+      <div class="buy-step" id="step-3">
+        <p style="font-size:0.88rem;line-height:1.7;color:var(--muted);">Souhaitez-vous une <strong style="color:var(--ink)">livraison par La Poste</strong> ?<br><span style="font-size:0.78rem;color:var(--gold);">⚠ Le prix sera doublé en cas de livraison.</span></p>
+        <div class="modal-info-box" id="step3-price-box"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-primary" onclick="buyChooseDelivery(true)">Oui, livraison →</button>
+          <button class="btn-modal-outline" onclick="buyChooseDelivery(false)">Non, merci →</button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 4 : créneau -->
+      <div class="buy-step" id="step-4">
+        <p style="font-size:0.88rem;line-height:1.7;color:var(--muted);">Pour <strong style="color:var(--ink)">quand</strong> souhaitez-vous recevoir votre livre ?</p>
+        <div id="creneaux-list"></div>
+        <div class="modal-err" id="buy-err-4">✕ &nbsp;Veuillez choisir un créneau.</div>
+        <div class="modal-actions">
+          <button class="btn-modal-outline" onclick="goToStep(3)">← Retour</button>
+          <button class="btn-modal-primary" onclick="validateCreneau()">Confirmer →</button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 5 : adresse ou email -->
+      <div class="buy-step" id="step-5">
+        <div id="step5-content"></div>
+        <div class="modal-err" id="buy-err-5">✕ &nbsp;Veuillez remplir ce champ.</div>
+        <div class="modal-actions">
+          <button class="btn-modal-outline" onclick="goToStep(4)">← Retour</button>
+          <button class="btn-modal-primary" onclick="buyFinalConfirm()">Confirmer l'achat →</button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 6 : succès -->
+      <div class="buy-step" id="step-6">
+        <div class="modal-success">
+          <div class="check">✦</div>
+          <h3 style="margin-bottom:0.8rem;">Commande confirmée</h3>
+          <p id="step6-msg"></p>
+        </div>
+        <div class="modal-actions" style="margin-top:1rem;"><button class="btn-modal-primary" onclick="closeBuyModal()">Fermer</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">P<span>✦</span>LIO</div>
+    <ul class="nav-links">
+      <li><a href="#catalogue">Catalogue</a></li>
+      <li><a href="#credits">Mes Crédits</a></li>
+      <li><a href="#how">Comment ça marche</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg-text">POLIO</div>
+    <div class="hero-eyebrow">Librairie exclusive</div>
+    <h1>Des œuvres qui <em>forgent</em> l'esprit</h1>
+    <p class="hero-desc">Une collection exceptionnelle de livres. Accédez aux titres avec vos crédits personnels, consultez votre solde à tout moment.</p>
+    <div class="hero-actions">
+      <a href="#catalogue" class="btn-primary">Découvrir le catalogue →</a>
+      <a href="#credits" class="btn-outline">Vérifier mes crédits</a>
+    </div>
+    <div class="hero-scroll-hint"><div class="scroll-line"></div><span>Défiler</span></div>
+  </section>
+
+  <!-- CREDITS -->
+  <section id="credits">
+    <div class="credits-inner">
+      <div>
+        <div class="section-label">Espace client</div>
+        <h2 class="section-title" style="color:var(--parchment)">Vérifiez<br>vos crédits</h2>
+        <p>Entrez votre numéro de carte client pour consulter votre solde de crédits disponibles.</p>
+      </div>
+      <div>
+        <div class="credits-form">
+          <div class="credits-input-wrap"><input type="text" id="cardInput" placeholder="Numéro de carte  ex : 01" autocomplete="off"></div>
+          <div class="credits-error" id="creditsError">✕ &nbsp;Carte introuvable. Vérifiez le numéro ou contactez-nous.</div>
+          <button class="btn-gold" onclick="checkCredits()">Consulter mon solde</button>
+          <div class="credits-result" id="creditsResult">
+            <p class="client-name" id="resultName">—</p>
+            <div class="credit-count" id="resultCredits">0</div>
+            <div class="credit-label">crédits disponibles</div>
+          </div>
+          <button class="btn-recharge" onclick="openRechargeModal()">+ Ajouter des crédits</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATALOGUE -->
+  <section id="catalogue">
+    <div class="catalogue-header fade-up">
+      <div class="section-label">Nos titres</div>
+      <h2 class="section-title">Le Catalogue</h2>
+      <p style="color:var(--muted);font-weight:300;max-width:50ch;line-height:1.8;font-size:0.9rem;">Une sélection rigoureuse de livres acquérables avec vos crédits.</p>
+    </div>
+    <div class="catalogue-grid"><div id="dynamic-books"></div></div>
+  </section>
+
+  <div class="ornamental-divider">✦</div>
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="how-inner">
+      <div><div class="section-label">Guide</div><h2 class="section-title">Comment<br>ça marche</h2></div>
+      <div class="how-steps">
+        <div class="how-step fade-up"><div class="step-number">01</div><div class="step-content"><h4>Obtenez votre carte client</h4><p>Votre carte Polio vous est attribuée lors de votre inscription. Elle contient un numéro unique et un solde de crédits initial.</p></div></div>
+        <div class="how-step fade-up"><div class="step-number">02</div><div class="step-content"><h4>Consultez votre solde</h4><p>À tout moment, entrez votre numéro de carte dans la section "Mes Crédits" pour vérifier votre solde disponible.</p></div></div>
+        <div class="how-step fade-up"><div class="step-number">03</div><div class="step-content"><h4>Choisissez un livre</h4><p>Parcourez notre catalogue et sélectionnez un titre disponible. Chaque livre a un coût en crédits indiqué sur sa fiche.</p></div></div>
+        <div class="how-step fade-up"><div class="step-number">04</div><div class="step-content"><h4>Finalisez l'achat</h4><p>Choisissez livraison ou retrait, sélectionnez votre créneau — vos crédits sont débités instantanément.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="contact-info fade-up">
+        <div class="section-label">Nous joindre</div>
+        <h2 class="section-title">Contact</h2>
+        <p>Une question sur votre carte, un titre, ou une commande ? Réponse sous 24–48 h.</p>
+        <div class="contact-detail"><div class="contact-detail-icon">✉</div><div class="contact-detail-text"><strong>Email</strong><a href="mailto:gustave.bo@protonmail.com">gustave.bo@protonmail.com</a></div></div>
+        <div class="contact-detail"><div class="contact-detail-icon">⏱</div><div class="contact-detail-text"><strong>Délai de réponse</strong>24 à 48 heures ouvrées</div></div>
+        <div class="contact-detail"><div class="contact-detail-icon">❓</div><div class="contact-detail-text"><strong>Sujets fréquents</strong>Solde de crédits · Commandes · Disponibilités</div></div>
+      </div>
+      <div class="fade-up">
+        <form class="contact-form" onsubmit="submitContact(event)">
+          <div class="form-row">
+            <div class="form-group"><label>Prénom</label><input type="text" required placeholder="Jean"></div>
+            <div class="form-group"><label>Nom</label><input type="text" required placeholder="Dupont"></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" required placeholder="votre@email.com"></div>
+          <div class="form-group"><label>N° de carte (optionnel)</label><input type="text" placeholder="01"></div>
+          <div class="form-group"><label>Sujet</label><select><option value="">Sélectionnez un sujet</option><option>Solde de crédits</option><option>Commande d'un livre</option><option>Disponibilité d'un titre</option><option>Problème avec ma carte</option><option>Autre</option></select></div>
+          <div class="form-group"><label>Message</label><textarea required placeholder="Décrivez votre demande..."></textarea></div>
+          <button type="submit" class="btn-gold">Envoyer le message →</button>
+          <div class="form-success" id="formSuccess">✓ &nbsp;Message envoyé. Nous vous répondrons sous 48 h.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">P<span>✦</span>LIO</div>
+    <p>© 2026 Polio Éditions — Tous droits réservés</p>
+    <a href="mailto:gustave.bo@protonmail.com">gustave.bo@protonmail.com</a>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://comxzjhzpbwplibkfasw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_0r8i0ntrXnvOMUomFu9pZA_4cmGf8vp';
+    const WEB3FORMS_KEY = '919f99e1-d0da-448d-b85b-17f03f4e87df';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // FADE UP
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { const s = e.target.parentElement?.querySelectorAll('.fade-up'); if (s) [...s].forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 120)); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    const COVER_PATTERNS = {
+      'cover-elite':   'linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%)',
+      'cover-coming1': 'linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%)',
+      'cover-coming2': 'linear-gradient(160deg, #0d1520 0%, #142030 100%)',
+      'cover-coming3': 'linear-gradient(160deg, #151208 0%, #251e0c 100%)',
+    };
+
+    function isAvailable(book) {
+      const t = (book.title || '').toLowerCase();
+      return !t.includes('en cours') && !t.includes('prochainement') && !t.includes('2027') && book.description !== 'Non dispo';
+    }
+
+    function buildCard(book) {
+      const words = (book.title || '').split(' ');
+      const half  = Math.ceil(words.length / 2);
+      const card  = document.createElement('div');
+      card.className = 'book-card fade-up';
+      const avail = isAvailable(book);
+      const desc  = (!book.description || ['non dispo','prochainement','bientot','bientôt'].includes((book.description||'').toLowerCase().trim()))
+        ? 'Prochainement disponible dans notre catalogue.'
+        : book.description;
+      card.innerHTML = `
+        <div class="book-cover" style="background:${COVER_PATTERNS[book.color]||COVER_PATTERNS['cover-elite']}">
+          <div class="book-cover-pattern"></div>
+          <div class="book-cover-ornament">${book.icon||'✦'}</div>
+          <span class="book-badge ${avail?'badge-available':'badge-soon'}">${avail?'Disponible':'Bientôt'}</span>
+          <div class="book-cover-title">${words.slice(0,Math.ceil(words.length/2)).join(' ')}${words.length>1?'<br>'+words.slice(Math.ceil(words.length/2)).join(' '):''}</div>
+          <div class="book-cover-author">${book.author||'Polio Éditions'}</div>
+        </div>
+        <div class="book-info">
+          <h3>${book.title}</h3>
+          <div class="author">${book.author||'Polio Éditions'}</div>
+          <p class="description">${desc}</p>
+          <div class="book-footer">
+            <div class="book-credits"><span class="number">${book.credits||'—'}</span><span class="label">crédits</span></div>
+            ${avail ? `<button class="btn-buy" onclick='openBuyModal(${JSON.stringify(book).replace(/'/g,"&#39;")})'>Acheter →</button>` : `<span class="book-status-text">En préparation</span>`}
+          </div>
+        </div>`;
+      return card;
+    }
+
+    async function loadBooksFromDB() {
+      try {
+        const { data, error } = await db.from('books').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        const container = document.getElementById('dynamic-books');
+        (data||[]).forEach(book => {
+          const card = buildCard(book);
+          container.parentElement.insertBefore(card, container);
+          requestAnimationFrame(() => card.classList.add('visible'));
+        });
+      } catch(err) { console.warn('Books:', err.message); }
+    }
+
+    async function checkCredits() {
+      const raw = document.getElementById('cardInput').value.trim();
+      const result = document.getElementById('creditsResult');
+      const errEl  = document.getElementById('creditsError');
+      result.classList.remove('visible'); errEl.classList.remove('visible');
+      if (!raw) return;
+      const { data } = await db.from('clients').select('name,credits').eq('card_number', raw).limit(1);
+      if (!data || !data.length) { errEl.classList.add('visible'); return; }
+      const c = data[0];
+      document.getElementById('resultName').textContent = c.name;
+      result.classList.add('visible');
+      const total = parseInt(c.credits)||0;
+      let n = 0; document.getElementById('resultCredits').textContent = 0;
+      const iv = setInterval(() => { n++; document.getElementById('resultCredits').textContent = n; if (n >= total) clearInterval(iv); }, Math.max(20, Math.floor(800/(total||1))));
+    }
+    document.getElementById('cardInput').addEventListener('keydown', e => { if (e.key==='Enter') checkCredits(); });
+
+    async function checkGlobalAccess() {
+      try {
+        const { data } = await db.from('site_access').select('is_open,closed_message').eq('site_key','polio-client').single();
+        if (data && data.is_open === false) {
+          document.getElementById('closed-overlay').style.display = 'flex';
+          document.getElementById('closed-message-display').textContent = data.closed_message;
+          document.body.style.overflow = 'hidden';
+        }
+      } catch(e) {}
+    }
+
+    async function submitContact(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const inputs = e.target.querySelectorAll('input[type="text"]');
+      btn.textContent = 'Envoi…'; btn.disabled = true;
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: '[Polio Contact] ' + (e.target.querySelector('select')?.value||'Message'), from_name: (inputs[0]?.value||'')+' '+(inputs[1]?.value||''), email: e.target.querySelector('input[type="email"]')?.value||'', message: e.target.querySelector('textarea')?.value||'' })
+        });
+        const json = await res.json();
+        if (json.success) { document.getElementById('formSuccess').classList.add('visible'); e.target.reset(); }
+      } catch(err) { alert('Erreur : '+err.message); }
+      btn.textContent = 'Envoyer le message →'; btn.disabled = false;
+    }
+
+    // ═══════════════════════════════════
+    // ACHAT
+    // ═══════════════════════════════════
+    let _buyBook=null, _buyClient=null, _buyDelivery=false, _buyFinalPrice=0, _buyCreneau=null;
+
+    function goToStep(n) {
+      [1,2,3,4,5,6].forEach(i => {
+        document.getElementById('step-'+i).classList.toggle('active', i===n);
+        const d = document.getElementById('dot-'+i);
+        if (d) d.classList.toggle('active', i===n);
+      });
+      if (n===3) initStep3();
+      if (n===4) loadCreneaux();
+      if (n===5) initStep5();
+    }
+
+    function openBuyModal(book) {
+      _buyBook=book; _buyClient=null; _buyDelivery=false; _buyFinalPrice=0; _buyCreneau=null;
+      document.getElementById('modal-book-title').textContent = book.title||'Livre';
+      document.getElementById('modal-book-credits').textContent = book.credits||'—';
+      document.getElementById('modal-book-credits-delivery').style.display = 'none';
+      document.getElementById('buy-err-1').classList.remove('show');
+      // Pré-remplir si solde consulté
+      const ci = document.getElementById('cardInput').value.trim();
+      const ni = document.getElementById('resultName').textContent;
+      document.getElementById('buy-card').value = (ci && ni !== '—') ? ci : '';
+      document.getElementById('buy-name').value = (ci && ni !== '—') ? ni : '';
+      goToStep(1);
+      document.getElementById('buy-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeBuyModal() { document.getElementById('buy-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+    document.getElementById('buy-overlay').addEventListener('click', e => { if (e.target===document.getElementById('buy-overlay')) closeBuyModal(); });
+
+    async function buyStep1() {
+      const cardVal = document.getElementById('buy-card').value.trim();
+      const nameVal = document.getElementById('buy-name').value.trim().toLowerCase();
+      const errEl   = document.getElementById('buy-err-1');
+      const btn     = document.getElementById('btn-step1');
+      errEl.classList.remove('show');
+      if (!cardVal||!nameVal) { errEl.classList.add('show'); return; }
+      btn.textContent='Vérification…'; btn.disabled=true;
+      const { data } = await db.from('clients').select('name,credits,card_number').eq('card_number',cardVal).limit(1);
+      btn.textContent='Vérifier ma carte →'; btn.disabled=false;
+      if (!data||!data.length||data[0].name.trim().toLowerCase()!==nameVal) { errEl.classList.add('show'); return; }
+      _buyClient = data[0];
+      const credits  = parseInt(_buyClient.credits)||0;
+      const bookCost = parseInt(_buyBook.credits)||0;
+      const enough   = credits >= bookCost;
+      document.getElementById('step2-credits').textContent = credits;
+      document.getElementById('step2-status').innerHTML = enough
+        ? `<span class="modal-ok">✓ Solde suffisant (${bookCost} crédit${bookCost>1?'s':''} requis)</span>`
+        : `<span class="modal-warn">✕ Solde insuffisant — ${bookCost} crédits requis, vous en avez ${credits}.</span>`;
+      document.getElementById('step2-actions').innerHTML = enough
+        ? `<button class="btn-modal-primary" onclick="goToStep(3)">Continuer →</button>`
+        : `<button class="btn-modal-outline" onclick="closeBuyModal()">Fermer</button>`;
+      goToStep(2);
+    }
+    document.getElementById('buy-card').addEventListener('keydown', e => { if (e.key==='Enter') buyStep1(); });
+    document.getElementById('buy-name').addEventListener('keydown', e => { if (e.key==='Enter') buyStep1(); });
+
+    function initStep3() {
+      const bc = parseInt(_buyBook.credits)||0, pc = bc*2;
+      document.getElementById('step3-price-box').innerHTML =
+        `<span class="sub">Sans livraison</span> <strong style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.1rem;">${bc} crédits</strong>&nbsp;&nbsp;→&nbsp;&nbsp;<span class="sub">Avec livraison</span> <strong style="font-family:'Cinzel',serif;color:var(--rust);font-size:1.1rem;">${pc} crédits</strong>`;
+      document.getElementById('modal-book-credits-delivery').style.display='';
+      document.getElementById('modal-book-credits-post').textContent=pc;
+    }
+
+    function buyChooseDelivery(wantsDelivery) {
+      const bc = parseInt(_buyBook.credits)||0;
+      _buyDelivery   = wantsDelivery;
+      _buyFinalPrice = wantsDelivery ? bc*2 : bc;
+      if (wantsDelivery) {
+        const credits = parseInt(_buyClient.credits)||0;
+        if (credits < _buyFinalPrice) {
+          document.getElementById('step2-status').innerHTML = `<span class="modal-warn">✕ Solde insuffisant pour la livraison — ${_buyFinalPrice} crédits requis, vous en avez ${credits}.</span>`;
+          document.getElementById('step2-actions').innerHTML = `<button class="btn-modal-outline" onclick="goToStep(3)">← Retour</button><button class="btn-modal-outline" onclick="closeBuyModal()">Fermer</button>`;
+          goToStep(2); return;
+        }
+      }
+      goToStep(4);
+    }
+
+    async function loadCreneaux() {
+      const list = document.getElementById('creneaux-list');
+      list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);">Chargement…</p>';
+      _buyCreneau = null;
+      try {
+        const { data } = await db.from('creneaux').select('*').eq('actif',true).eq('book_id', _buyBook.id).order('date_debut',{ascending:true});
+        if (!data||!data.length) { list.innerHTML='<p style="font-size:0.82rem;color:var(--muted);">Aucun créneau disponible pour ce livre.</p>'; return; }
+        list.innerHTML='';
+        data.forEach(cr => {
+          const restant = cr.max_commandes - cr.nb_commandes;
+          const full = restant <= 0;
+          const el = document.createElement('div');
+          el.className = 'creneau-option' + (full?' disabled':'');
+          el.innerHTML = `<span class="creneau-label">${cr.label}</span><span class="creneau-dispo ${full?'full':''}">${full?'Complet':restant+' place'+(restant>1?'s':'')+' restante'+(restant>1?'s':'')}</span>`;
+          if (!full) el.onclick = () => { document.querySelectorAll('.creneau-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); _buyCreneau=cr; };
+          list.appendChild(el);
+        });
+      } catch(err) { list.innerHTML='<p style="font-size:0.82rem;color:var(--muted);">Erreur chargement créneaux.</p>'; }
+    }
+
+    function validateCreneau() {
+      const errEl = document.getElementById('buy-err-4');
+      errEl.classList.remove('show');
+      if (!_buyCreneau) { errEl.classList.add('show'); return; }
+      goToStep(5);
+    }
+
+    function initStep5() {
+      document.getElementById('step5-content').innerHTML = _buyDelivery
+        ? `<p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">Indiquez votre <strong style="color:var(--ink)">adresse postale</strong> pour la livraison.</p><div><label>Adresse postale</label><input type="text" id="buy-adresse" placeholder="12 rue des Livres, 44000 Nantes" autocomplete="off"></div>`
+        : `<p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">Indiquez votre <strong style="color:var(--ink)">adresse e-mail</strong> pour recevoir la confirmation.</p><div><label>Adresse e-mail</label><input type="email" id="buy-email" placeholder="votre@email.com" autocomplete="off"></div>`;
+    }
+
+    async function buyFinalConfirm() {
+      const errEl = document.getElementById('buy-err-5');
+      errEl.classList.remove('show');
+      let contactInfo = '';
+      if (_buyDelivery) {
+        const addr = document.getElementById('buy-adresse')?.value.trim();
+        if (!addr) { errEl.classList.add('show'); return; }
+        contactInfo = addr;
+      } else {
+        const email = document.getElementById('buy-email')?.value.trim();
+        if (!email||!email.includes('@')) { errEl.classList.add('show'); return; }
+        contactInfo = email;
+      }
+      const credits = parseInt(_buyClient.credits)||0;
+      if (credits < _buyFinalPrice) { errEl.textContent=`✕ Solde insuffisant.`; errEl.classList.add('show'); return; }
+      await processOrder(contactInfo);
+    }
+
+    async function processOrder(contactInfo) {
+      const newCredits = (parseInt(_buyClient.credits)||0) - _buyFinalPrice;
+      const { error } = await db.from('clients').update({ credits: newCredits }).eq('card_number', _buyClient.card_number);
+      if (error) { alert('Erreur débit : '+error.message); return; }
+      if (_buyCreneau) await db.from('creneaux').update({ nb_commandes: _buyCreneau.nb_commandes+1 }).eq('id', _buyCreneau.id);
+      // Stocker la commande en BDD
+      await db.from('commandes').insert({
+        client_carte:    _buyClient.card_number,
+        client_nom:      _buyClient.name,
+        book_id:         _buyBook.id,
+        book_titre:      _buyBook.title,
+        credits_debites: _buyFinalPrice,
+        livraison:       _buyDelivery,
+        creneau_id:      _buyCreneau?.id || null,
+        creneau_label:   _buyCreneau?.label || null,
+        contact_info:    contactInfo
+      });
+      try {
+        await fetch('https://api.web3forms.com/submit', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject:'[Polio] Commande — '+_buyBook.title, from_name: _buyClient.name, email:'gustave.bo@protonmail.com',
+            message: `Client : ${_buyClient.name}\nCarte : ${_buyClient.card_number}\nLivre : ${_buyBook.title}\nCoût : ${_buyFinalPrice} crédits\nLivraison : ${_buyDelivery?'Oui':'Non'}\nCréneau : ${_buyCreneau?.label||'—'}\nContact : ${contactInfo}\nCrédits restants : ${newCredits}` })
+        });
+      } catch(_) {}
+      let msg = `Bonjour <strong>${_buyClient.name}</strong>, votre achat de <em>${_buyBook.title}</em> a bien été enregistré.<br><br>`;
+      msg += `Crédits débités : <strong>${_buyFinalPrice}</strong> — Solde restant : <strong>${newCredits}</strong>.<br><br>`;
+      msg += `Créneau : <strong>${_buyCreneau?.label||'—'}</strong><br><br>`;
+      msg += _buyDelivery ? `📦 Livraison à : <strong>${contactInfo}</strong>` : `📩 Confirmation envoyée à : <strong>${contactInfo}</strong>`;
+      document.getElementById('step6-msg').innerHTML = msg;
+      goToStep(6);
+    }
+
+    // RECHARGE
+    function openRechargeModal() {
+      document.getElementById('recharge-code').value='';
+      document.getElementById('recharge-card').value=document.getElementById('cardInput').value.trim()||'';
+      document.getElementById('recharge-err').classList.remove('show');
+      document.getElementById('recharge-success').style.display='none';
+      document.getElementById('recharge-overlay').classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function closeRechargeModal() { document.getElementById('recharge-overlay').classList.remove('open'); document.body.style.overflow=''; }
+    document.getElementById('recharge-overlay').addEventListener('click', e => { if (e.target===document.getElementById('recharge-overlay')) closeRechargeModal(); });
+
+    async function validerCodeCadeau() {
+      const code    = document.getElementById('recharge-code').value.trim().toUpperCase();
+      const cardNum = document.getElementById('recharge-card').value.trim();
+      const errEl   = document.getElementById('recharge-err');
+      const btn     = document.getElementById('btn-recharge');
+      const succEl  = document.getElementById('recharge-success');
+      errEl.textContent='✕ &nbsp;Code invalide, déjà utilisé, ou carte introuvable.';
+      errEl.classList.remove('show'); succEl.style.display='none';
+      if (!code||!cardNum) { errEl.classList.add('show'); return; }
+      btn.textContent='Vérification…'; btn.disabled=true;
+      try {
+        const { data: gift } = await db.from('gift_codes').select('*').eq('code',code).single();
+        if (!gift) throw new Error('Code introuvable');
+        if (gift.used) { errEl.textContent='✕ Ce code a déjà été utilisé.'; throw new Error('used'); }
+        const { data: client } = await db.from('clients').select('*').eq('card_number',cardNum).single();
+        if (!client) { errEl.textContent='✕ Numéro de carte introuvable.'; throw new Error('no client'); }
+        const newCredits = (parseInt(client.credits)||0) + gift.credits;
+        await db.from('clients').update({ credits: newCredits }).eq('card_number', cardNum);
+        await db.from('gift_codes').update({ used:true, used_by:cardNum, used_at:new Date().toISOString() }).eq('code', code);
+        succEl.textContent=`✓ ${gift.credits} crédits ajoutés ! Nouveau solde : ${newCredits} crédits.`;
+        succEl.style.display='block';
+        if (document.getElementById('cardInput').value.trim()===cardNum) {
+          document.getElementById('resultCredits').textContent=newCredits;
+          document.getElementById('creditsResult').classList.add('visible');
+        }
+      } catch(err) { if (!succEl.style.display||succEl.style.display==='none') errEl.classList.add('show'); }
+      btn.textContent='+ Ajouter les crédits'; btn.disabled=false;
+    }
+
+    // INIT
+    async function init() { await loadBooksFromDB(); await checkGlobalAccess(); }
+    init();
+    setInterval(async () => {
+      await checkGlobalAccess();
+      const ci = document.getElementById('cardInput').value.trim();
+      if (document.getElementById('creditsResult').classList.contains('visible') && ci) {
+        const { data } = await db.from('clients').select('credits').eq('card_number',ci).single().catch(()=>({data:null}));
+        if (data) document.getElementById('resultCredits').textContent=data.credits;
+      }
+    }, 10000);
+  </script>
+</body>
+</html>
