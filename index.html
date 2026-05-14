@@ -1,769 +1,992 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Polio — Librairie</title>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --ink: #0d0b08; --parchment: #f5f0e8; --cream: #faf7f2;
-      --gold: #b8902a; --gold-light: #d4a843; --rust: #8b3a2a;
-      --muted: #6b6357; --border: rgba(184,144,42,0.25);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--ink); overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; }
-
-    /* FERMETURE */
-    #closed-overlay { position: fixed; inset: 0; z-index: 9999; background: var(--parchment); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
-    #closed-overlay .lock-icon { font-family: 'Cinzel', serif; font-size: 4rem; color: var(--gold); margin-bottom: 2rem; border: 1px solid var(--border); width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
-    #closed-overlay h2 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--ink); margin-bottom: 1rem; }
-    #closed-overlay p { font-family: 'Jost', sans-serif; color: var(--muted); max-width: 40ch; line-height: 1.6; }
-
-    /* NAV */
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 4rem; background: rgba(245,240,232,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-    .nav-logo { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 0.3em; color: var(--ink); text-transform: uppercase; }
-    .nav-logo span { color: var(--gold); }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a { font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.25s; }
-    .nav-links a:hover { color: var(--gold); }
-
-    /* HERO */
-    #hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 8rem 4rem 4rem; overflow: hidden; }
-    .hero-bg-text { position: absolute; right: -2rem; top: 50%; transform: translateY(-50%) rotate(-90deg); font-family: 'Cinzel', serif; font-size: clamp(6rem, 18vw, 16rem); font-weight: 600; color: transparent; -webkit-text-stroke: 1px rgba(184,144,42,0.12); white-space: nowrap; pointer-events: none; user-select: none; }
-    .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
-    .hero-eyebrow::before { content: ''; display: inline-block; width: 2.5rem; height: 1px; background: var(--gold); }
-    h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300; line-height: 1.0; color: var(--ink); max-width: 14ch; margin-bottom: 2rem; }
-    h1 em { font-style: italic; color: var(--gold); }
-    .hero-desc { font-size: 1rem; font-weight: 300; line-height: 1.8; color: var(--muted); max-width: 44ch; margin-bottom: 3rem; }
-    .btn-primary { display: inline-flex; align-items: center; gap: 0.8rem; background: var(--ink); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; padding: 1rem 2.5rem; border: none; cursor: pointer; transition: background 0.3s, transform 0.2s; }
-    .btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
-    .btn-outline { display: inline-flex; align-items: center; gap: 0.8rem; background: transparent; color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; padding: 1rem 2.5rem; border: 1px solid var(--ink); cursor: pointer; transition: all 0.3s; }
-    .btn-outline:hover { background: var(--ink); color: var(--parchment); }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .hero-scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
-    .scroll-line { width: 1px; height: 3rem; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
-    @keyframes scrollPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-    section { position: relative; z-index: 1; }
-    .section-label { font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-    .section-label::before { content: ''; display: inline-block; width: 2rem; height: 1px; background: var(--gold); }
-    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.1; margin-bottom: 1.5rem; }
-
-    /* CREDITS */
-    #credits { background: var(--ink); color: var(--parchment); padding: 6rem 4rem; }
-    .credits-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
-    #credits .section-label { color: var(--gold-light); }
-    #credits .section-title { color: var(--parchment); }
-    #credits p { font-weight: 300; line-height: 1.8; color: rgba(245,240,232,0.65); margin-bottom: 2rem; }
-    .credits-form { display: flex; flex-direction: column; gap: 1rem; }
-    .credits-input-wrap input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(184,144,42,0.3); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.9rem; padding: 1rem 1.5rem; letter-spacing: 0.1em; outline: none; transition: border-color 0.3s; }
-    .credits-input-wrap input::placeholder { color: rgba(245,240,232,0.3); }
-    .credits-input-wrap input:focus { border-color: var(--gold); }
-    .btn-gold { background: var(--gold); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; padding: 1rem 2rem; border: none; cursor: pointer; transition: background 0.3s, transform 0.2s; align-self: flex-start; }
-    .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
-    .credits-result { display: none; background: rgba(184,144,42,0.12); border: 1px solid rgba(184,144,42,0.3); padding: 1.5rem; margin-top: 0.5rem; }
-    .credits-result.visible { display: block; }
-    .credits-result .client-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--parchment); margin-bottom: 0.5rem; }
-    .credits-result .credit-count { font-size: 2.5rem; font-family: 'Cinzel', serif; color: var(--gold); }
-    .credits-result .credit-label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.5); }
-    .credits-error { display: none; color: #e07060; font-size: 0.85rem; padding: 0.75rem 0; }
-    .credits-error.visible { display: block; }
-    .btn-recharge { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: var(--gold); border: 1px solid rgba(184,144,42,0.4); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.7rem 1.4rem; cursor: pointer; transition: all 0.25s; align-self: flex-start; }
-    .btn-recharge:hover { background: rgba(184,144,42,0.15); border-color: var(--gold); }
-
-    /* CATALOGUE */
-    #catalogue { padding: 7rem 4rem; background: var(--parchment); }
-    .catalogue-header { max-width: 1100px; margin: 0 auto 4rem; }
-    .catalogue-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2.5rem; }
-    .book-card { position: relative; background: var(--cream); border: 1px solid var(--border); overflow: hidden; transition: transform 0.35s, box-shadow 0.35s; }
-    .book-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(13,11,8,0.12); }
-    .book-cover { position: relative; width: 100%; aspect-ratio: 3/4; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 2rem 1.8rem; }
-    .book-cover-pattern { position: absolute; inset: 0; opacity: 0.15; }
-    .cover-elite { background: linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%); }
-    .cover-elite .book-cover-pattern { background-image: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(184,144,42,0.3) 12px, rgba(184,144,42,0.3) 13px), repeating-linear-gradient(-45deg, transparent, transparent 12px, rgba(184,144,42,0.15) 12px, rgba(184,144,42,0.15) 13px); }
-    .cover-coming1 { background: linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%); }
-    .cover-coming2 { background: linear-gradient(160deg, #0d1520 0%, #142030 100%); }
-    .cover-coming3 { background: linear-gradient(160deg, #151208 0%, #251e0c 100%); }
-    .book-cover-ornament { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; opacity: 0.08; user-select: none; }
-    .book-cover-title { position: relative; z-index: 1; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; font-style: italic; color: var(--gold); line-height: 1.2; margin-bottom: 0.5rem; }
-    .book-cover-author { position: relative; z-index: 1; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(245,240,232,0.45); }
-    .book-badge { position: absolute; top: 1rem; right: 1rem; z-index: 2; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.35rem 0.75rem; }
-    .badge-available { background: var(--gold); color: var(--ink); }
-    .badge-soon { background: rgba(245,240,232,0.12); color: rgba(245,240,232,0.5); border: 1px solid rgba(245,240,232,0.15); backdrop-filter: blur(4px); }
-    .book-info { padding: 1.5rem 1.8rem 1.8rem; }
-    .book-info h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.4rem; }
-    .book-info .author { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.8rem; }
-    .book-info .description { font-size: 0.82rem; line-height: 1.7; color: var(--muted); font-weight: 300; margin-bottom: 1.2rem; }
-    .book-footer { display: flex; align-items: center; justify-content: space-between; }
-    .book-credits .number { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold); }
-    .book-credits .label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-    .book-status-text { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-style: italic; }
-    .btn-buy { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gold); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.65rem 1.4rem; border: none; cursor: pointer; transition: background 0.25s, transform 0.2s; }
-    .btn-buy:hover { background: var(--gold-light); transform: translateY(-1px); }
-
-    /* HOW */
-    #how { padding: 7rem 4rem; background: var(--cream); }
-    .how-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 6rem; align-items: start; }
-    .how-steps { display: flex; flex-direction: column; }
-    .how-step { display: flex; gap: 1.5rem; padding: 2rem 0; border-bottom: 1px solid var(--border); }
-    .step-number { font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 400; color: var(--border); min-width: 2.5rem; line-height: 1; transition: color 0.3s; }
-    .how-step:hover .step-number { color: var(--gold); }
-    .step-content h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.5rem; }
-    .step-content p { font-size: 0.85rem; line-height: 1.75; color: var(--muted); font-weight: 300; }
-
-    /* CONTACT */
-    #contact { padding: 7rem 4rem; background: var(--parchment); }
-    .contact-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 5rem; align-items: start; }
-    .contact-info p { font-size: 0.9rem; line-height: 1.8; color: var(--muted); font-weight: 300; margin-bottom: 2rem; }
-    .contact-detail { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; }
-    .contact-detail-icon { width: 2rem; height: 2rem; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
-    .contact-detail-text { font-size: 0.85rem; line-height: 1.6; color: var(--muted); }
-    .contact-detail-text strong { display: block; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 0.2rem; }
-    .contact-detail-text a { color: var(--ink); text-decoration: none; transition: color 0.25s; }
-    .contact-detail-text a:hover { color: var(--gold); }
-    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
-    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-    .form-group label { font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
-    .form-group input, .form-group textarea, .form-group select { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300; padding: 0.9rem 1.2rem; outline: none; transition: border-color 0.3s; resize: none; appearance: none; }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold); }
-    .form-group textarea { min-height: 120px; line-height: 1.7; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-success { display: none; background: rgba(184,144,42,0.1); border: 1px solid rgba(184,144,42,0.3); padding: 1.2rem 1.5rem; font-size: 0.85rem; color: var(--gold); }
-    .form-success.visible { display: block; }
-
-    /* FOOTER */
-    footer { background: var(--ink); color: rgba(245,240,232,0.4); padding: 2.5rem 4rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid rgba(184,144,42,0.2); }
-    .footer-logo { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.3em; color: var(--parchment); }
-    .footer-logo span { color: var(--gold); }
-    footer p { font-size: 0.72rem; letter-spacing: 0.1em; }
-    footer a { color: var(--gold); text-decoration: none; font-size: 0.72rem; }
-    .ornamental-divider { text-align: center; font-size: 0.9rem; color: var(--gold); opacity: 0.5; letter-spacing: 0.5em; padding: 0 4rem; overflow: hidden; }
-    .ornamental-divider::before, .ornamental-divider::after { content: ''; display: inline-block; vertical-align: middle; width: 30%; height: 1px; background: var(--border); margin: 0 1.5rem; }
-
-    /* ANIMATIONS */
-    .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
-    .fade-up.visible { opacity: 1; transform: none; }
-
-    /* MODAL ACHAT */
-    #buy-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(13,11,8,0.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
-    #buy-overlay.open { display: flex; }
-    #buy-modal { background: var(--parchment); border: 1px solid var(--border); width: 100%; max-width: 480px; padding: 2.5rem 2.8rem; position: relative; animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto; }
-    @keyframes modalIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-    #buy-modal .modal-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; cursor: pointer; font-size: 1.3rem; color: var(--muted); transition: color 0.2s; }
-    #buy-modal .modal-close:hover { color: var(--ink); }
-    .modal-eyebrow { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem; }
-    .modal-eyebrow::before { content: ''; display: inline-block; width: 1.5rem; height: 1px; background: var(--gold); }
-    #buy-modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 300; color: var(--ink); margin-bottom: 0.4rem; }
-    .modal-book-info { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 1.8rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--border); }
-    .modal-book-info strong { color: var(--gold); font-family: 'Cinzel', serif; }
-    .buy-step { display: none; flex-direction: column; gap: 1rem; }
-    .buy-step.active { display: flex; }
-    .buy-step label { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
-    .buy-step input, .buy-step select { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 300; padding: 0.85rem 1.1rem; outline: none; transition: border-color 0.3s; width: 100%; appearance: none; }
-    .buy-step input:focus, .buy-step select:focus { border-color: var(--gold); }
-    .modal-err { color: #c0503a; font-size: 0.82rem; background: rgba(192,80,58,0.08); border: 1px solid rgba(192,80,58,0.25); padding: 0.7rem 1rem; display: none; }
-    .modal-err.show { display: block; }
-    .modal-info-box { background: rgba(184,144,42,0.1); border: 1px solid var(--border); padding: 1rem 1.2rem; font-size: 0.83rem; line-height: 1.65; color: var(--ink); }
-    .modal-info-box .big { font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--gold); display: block; margin-bottom: 0.15rem; }
-    .modal-info-box .sub { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-    .modal-ok { color: #4a7c59; font-weight: 500; font-size: 0.82rem; }
-    .modal-warn { color: #c0503a; font-weight: 500; font-size: 0.82rem; }
-    .modal-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
-    .btn-modal-primary { flex: 1; background: var(--ink); color: var(--parchment); font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.85rem 1.4rem; border: none; cursor: pointer; transition: background 0.25s; }
-    .btn-modal-primary:hover { background: var(--gold); color: var(--ink); }
-    .btn-modal-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-modal-outline { flex: 1; background: transparent; color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.85rem 1.4rem; border: 1px solid var(--ink); cursor: pointer; transition: all 0.25s; }
-    .btn-modal-outline:hover { background: var(--ink); color: var(--parchment); }
-    .step-indicator { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; }
-    .step-dot { width: 5px; height: 5px; background: var(--border); transition: background 0.3s; }
-    .step-dot.active { background: var(--gold); }
-    .modal-success { text-align: center; padding: 1rem 0; }
-    .modal-success .check { font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem; }
-    .modal-success p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
-
-    /* CRÉNEAUX */
-    .creneau-option { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--cream); cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 0.4rem; }
-    .creneau-option:hover:not(.disabled) { border-color: var(--gold); background: rgba(184,144,42,0.05); }
-    .creneau-option.selected { border-color: var(--gold); background: rgba(184,144,42,0.1); }
-    .creneau-option.disabled { opacity: 0.4; cursor: not-allowed; }
-    .creneau-label { font-size: 0.85rem; }
-    .creneau-dispo { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); }
-    .creneau-dispo.full { color: var(--rust); }
-
-    /* MODAL RECHARGE */
-    #recharge-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(13,11,8,0.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
-    #recharge-overlay.open { display: flex; }
-    #recharge-modal { background: var(--parchment); border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 2.5rem 2.8rem; position: relative; animation: modalIn 0.3s ease; }
-    #recharge-modal .modal-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; cursor: pointer; font-size: 1.3rem; color: var(--muted); transition: color 0.2s; }
-    #recharge-modal .modal-close:hover { color: var(--ink); }
-    #recharge-modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; margin-bottom: 0.4rem; }
-    .recharge-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-    .recharge-form label { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
-    .recharge-form input { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 300; padding: 0.85rem 1.1rem; outline: none; transition: border-color 0.3s; width: 100%; }
-    .recharge-form input:focus { border-color: var(--gold); }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
-      #hero { padding: 7rem 1.5rem 4rem; }
-      #credits { padding: 5rem 1.5rem; } .credits-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-      #catalogue { padding: 5rem 1.5rem; }
-      #how { padding: 5rem 1.5rem; } .how-inner { grid-template-columns: 1fr; gap: 2rem; }
-      #contact { padding: 5rem 1.5rem; } .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-      .form-row { grid-template-columns: 1fr; }
-      footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
-      #buy-modal { padding: 2rem 1.5rem; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polio — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#13161c;--surface2:#1a1e27;--border:#252a36;
+  --gold:#c8a96e;--gold-light:#e2c98a;--gold-dim:rgba(200,169,110,.12);
+  --text:#e8e4dc;--muted:#6b7280;--danger:#e05555;--success:#4eca8b;
+  --ban:#f97316;--ban-dim:rgba(249,115,22,.12);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,.12);
+  --ready:#4eca8b;--ready-dim:rgba(78,202,139,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 15% 0%,rgba(200,169,110,.05) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 85% 100%,rgba(139,92,246,.04) 0%,transparent 60%);}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;}
+.sidebar{width:268px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:32px 0;position:sticky;top:0;height:100vh;flex-shrink:0;}
+.logo{padding:0 28px 28px;border-bottom:1px solid var(--border);}
+.logo-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold);}
+.logo-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:3px;}
+.nav{padding:20px 16px;flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--muted);transition:all .2s;margin-bottom:2px;user-select:none;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--gold-dim);color:var(--gold);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-stats{margin:16px;padding:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);}
+.ss-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;}
+.ss-row{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;}
+.ss-row:last-child{margin-bottom:0;}
+.ss-val{font-family:'DM Mono',monospace;color:var(--gold);}
+.main{flex:1;padding:40px 48px;overflow-y:auto;}
+.page-title{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;line-height:1.1;margin-bottom:6px;}
+.page-title span{color:var(--gold);}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:36px;}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-gold{background:var(--gold);color:#0c0e12;}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text);}
+.btn-danger{background:rgba(224,85,85,.15);color:var(--danger);border:1px solid rgba(224,85,85,.3);}
+.btn-danger:hover{background:rgba(224,85,85,.25);}
+.btn-ban{background:var(--ban-dim);color:var(--ban);border:1px solid rgba(249,115,22,.3);}
+.btn-ban:hover{background:rgba(249,115,22,.22);}
+.btn-unban{background:rgba(78,202,139,.15);color:var(--success);border:1px solid rgba(78,202,139,.3);}
+.btn-unban:hover{background:rgba(78,202,139,.25);}
+.btn-ready{background:var(--ready-dim);color:var(--ready);border:1px solid rgba(78,202,139,.3);}
+.btn-ready:hover{background:rgba(78,202,139,.25);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,.3);}
+.btn-purple:hover{background:rgba(139,92,246,.2);}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;overflow:hidden;}
+.stat-card::before{content:attr(data-icon);position:absolute;right:18px;top:16px;font-size:26px;opacity:.12;}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;}
+.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--gold);line-height:1;}
+.stat-desc{font-size:12px;color:var(--muted);margin-top:7px;}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px;}
+.tbl-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.tbl-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.tbl-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 20px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400;}
+tbody tr{transition:background .15s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr.banned-row{opacity:.65;}
+tbody td{padding:13px 20px;font-size:14px;border-bottom:1px solid rgba(37,42,54,.5);}
+tbody tr:last-child td{border-bottom:none;}
+.credit-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;}
+.ch{background:rgba(78,202,139,.12);color:var(--success);}
+.cm{background:rgba(200,169,110,.12);color:var(--gold);}
+.cl{background:rgba(224,85,85,.12);color:var(--danger);}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
+.sb-pending{background:rgba(200,169,110,.12);color:var(--gold);}
+.sb-ready{background:rgba(78,202,139,.12);color:var(--success);}
+.sb-banned{background:rgba(249,115,22,.12);color:var(--ban);}
+.actions{display:flex;gap:5px;flex-wrap:wrap;}
+.book-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;transition:all .25s;}
+.book-card:hover{border-color:rgba(200,169,110,.4);transform:translateY(-2px);}
+.bc-icon{font-size:30px;margin-bottom:10px;}
+.bc-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.bc-author{font-size:11px;color:var(--muted);margin-bottom:6px;font-style:italic;}
+.bc-desc{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.bc-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.bc-credits{font-family:'DM Mono',monospace;font-size:22px;color:var(--gold);font-weight:500;}
+.bc-credits span{font-size:12px;color:var(--muted);}
+.bc-actions{display:flex;gap:8px;}
+.search-wrap{position:relative;margin-bottom:22px;}
+.search-wrap input{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 16px 11px 42px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.search-wrap input:focus{border-color:var(--gold);}
+.search-wrap input::placeholder{color:var(--muted);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+.overlay{position:fixed;inset:0;background:rgba(12,14,18,.88);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:560px;max-width:94vw;transform:translateY(12px);transition:transform .2s;position:relative;max-height:90vh;overflow-y:auto;}
+.overlay.open .modal{transform:translateY(0);}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:5px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.form-group{margin-bottom:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-lbl{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.08em;}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--gold);}
+.form-input::placeholder{color:var(--muted);}
+.form-input option{background:var(--surface2);}
+textarea.form-input{resize:vertical;min-height:80px;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+.modal-x{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-x:hover{color:var(--text);}
+.icon-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.icon-opt{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all .2s;}
+.icon-opt:hover{border-color:var(--gold);}
+.icon-opt.selected{border-color:var(--gold);background:var(--gold-dim);}
+.section{display:none;}
+.section.active{display:block;}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:44px;margin-bottom:14px;opacity:.35;}
+.toasts{position:fixed;bottom:26px;right:26px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 18px;font-size:13px;min-width:230px;box-shadow:0 8px 28px rgba(0,0,0,.45);animation:tIn .25s ease forwards;}
+.toast.ok{border-left:3px solid var(--success);}
+.toast.err{border-left:3px solid var(--danger);}
+@keyframes tIn{from{transform:translateX(18px);opacity:0}to{transform:translateX(0);opacity:1}}
+#loading-bar{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));z-index:9999;opacity:0;transition:opacity .2s;animation:loadSlide 1.2s ease-in-out infinite;}
+@keyframes loadSlide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.panel-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+.panel-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.1;}
+.panel-copy{font-size:13px;color:var(--muted);line-height:1.7;max-width:70ch;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+.creator-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color .2s;}
+.creator-item:hover{border-color:rgba(200,169,110,.3);}
+.ci-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.ci-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+.ci-author{font-size:12px;color:var(--muted);font-style:italic;}
+.ci-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;flex-wrap:wrap;}
+.ci-content{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:12px;font-size:13px;line-height:1.7;color:var(--text);max-height:220px;overflow-y:auto;white-space:pre-wrap;font-family:'DM Mono',monospace;}
+.ci-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.acces-status{padding:16px;border-radius:12px;text-align:center;font-weight:600;font-size:15px;margin-bottom:20px;}
+.acces-open{background:rgba(78,202,139,.12);border:1px solid rgba(78,202,139,.3);color:var(--success);}
+.acces-closed{background:rgba(224,85,85,.12);border:1px solid rgba(224,85,85,.3);color:var(--danger);}
+.cmd-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;flex-wrap:wrap;}
+.cmd-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(200,169,110,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0;font-family:'Playfair Display',serif;}
+.cmd-info{flex:1;min-width:0;}
+.cmd-name{font-weight:600;font-size:14px;}
+.cmd-detail{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;}
+.cmd-book{font-size:13px;font-weight:500;color:var(--text);}
+.cmd-creneau{font-size:11px;color:var(--gold);font-family:'DM Mono',monospace;margin-top:2px;}
+.cmd-credits{font-family:'DM Mono',monospace;font-size:13px;color:var(--danger);flex-shrink:0;}
+.cmd-actions{display:flex;gap:6px;flex-shrink:0;}
+.cmd-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
+.banned-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:10px;background:var(--ban-dim);color:var(--ban);border:1px solid rgba(249,115,22,.3);margin-left:6px;}
+@media(max-width:760px){
+  .grid-4,.grid-3{grid-template-columns:1fr;}
+  .main{padding:28px 20px;}
+  .sidebar{position:relative;height:auto;width:100%;}
+  .layout{flex-direction:column;}
+}
+</style>
 </head>
 <body>
+<div id="loading-bar"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">✦ Polio</div>
+      <div class="logo-sub">Panel administrateur</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" data-tab="cartes"><span class="nav-icon">💳</span>Cartes clients</div>
+      <div class="nav-item" data-tab="commandes"><span class="nav-icon">🛒</span>Commandes</div>
+      <div class="nav-item" data-tab="livres"><span class="nav-icon">📚</span>Catalogue livres</div>
+      <div class="nav-item" data-tab="createur"><span class="nav-icon">✍️</span>Espace créateur</div>
+      <div class="nav-item" data-tab="acces"><span class="nav-icon">🔒</span>Accès Site</div>
+    </nav>
+    <div class="sidebar-stats" id="sidebar-stats">
+      <div class="ss-label">Résumé</div>
+      <div class="ss-row"><span>Clients</span><span class="ss-val" id="ss-clients">—</span></div>
+      <div class="ss-row"><span>Commandes</span><span class="ss-val" id="ss-commandes">—</span></div>
+      <div class="ss-row"><span>Livres</span><span class="ss-val" id="ss-livres">—</span></div>
+    </div>
+  </aside>
 
-  <div id="closed-overlay">
-    <div class="lock-icon">P</div>
-    <h2 id="closed-title">Polio est fermé</h2>
-    <p id="closed-message-display">La librairie Polio est momentanément indisponible. Veuillez repasser plus tard.</p>
-  </div>
+  <main class="main">
+    <div class="page-title"><span>Polio</span> — Admin</div>
+    <div class="page-sub">Gérez les cartes, commandes, catalogue et accès</div>
+    <div class="grid-4" id="stats-row">
+      <div class="stat-card" data-icon="💳"><div class="stat-lbl">Clients</div><div class="stat-num" id="s-clients">—</div><div class="stat-desc">cartes actives</div></div>
+      <div class="stat-card" data-icon="✦"><div class="stat-lbl">Crédits totaux</div><div class="stat-num" id="s-credits">—</div><div class="stat-desc">en circulation</div></div>
+      <div class="stat-card" data-icon="🛒"><div class="stat-lbl">Commandes</div><div class="stat-num" id="s-commandes">—</div><div class="stat-desc" id="s-commandes-desc">—</div></div>
+      <div class="stat-card" data-icon="📚"><div class="stat-lbl">Catalogue</div><div class="stat-num" id="s-livres">—</div><div class="stat-desc">livres enregistrés</div></div>
+    </div>
 
-  <!-- MODAL RECHARGE -->
-  <div id="recharge-overlay">
-    <div id="recharge-modal">
-      <button class="modal-close" onclick="closeRechargeModal()">✕</button>
-      <div class="modal-eyebrow">Recharge</div>
-      <h3>Ajouter des crédits</h3>
-      <div class="recharge-form">
-        <div><label>Code cadeau</label><input type="text" id="recharge-code" placeholder="PLO-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.2em;"></div>
-        <div><label>Numéro de carte</label><input type="text" id="recharge-card" placeholder="ex : 01" autocomplete="off"></div>
-        <div class="modal-err" id="recharge-err">✕ &nbsp;Code invalide, déjà utilisé, ou carte introuvable.</div>
-        <div class="modal-actions"><button class="btn-modal-primary" id="btn-recharge" onclick="validerCodeCadeau()">+ Ajouter les crédits</button></div>
-        <div id="recharge-success" style="display:none;background:rgba(74,124,89,0.1);border:1px solid rgba(74,124,89,0.3);padding:0.8rem 1rem;font-size:0.85rem;color:#4a7c59;"></div>
+    <!-- ─── CARTES ─── -->
+    <div class="section active" id="section-cartes">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Rechercher un client…">
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div><div class="tbl-title">Cartes Clients</div><div class="tbl-sub" id="clients-count">—</div></div>
+          <button class="btn btn-gold btn-sm" id="btn-new-client">+ Nouvelle carte</button>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>N° Carte</th><th>Crédits</th><th>Statut</th><th>Dernier achat</th><th>Actions</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="6" class="empty">Chargement…</td></tr></tbody>
+        </table>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL ACHAT -->
-  <div id="buy-overlay">
-    <div id="buy-modal">
-      <button class="modal-close" onclick="closeBuyModal()">✕</button>
-      <div class="modal-eyebrow">Achat sécurisé</div>
-      <h3 id="modal-book-title">Titre du livre</h3>
-      <div class="modal-book-info">
-        Coût : <strong id="modal-book-credits">—</strong> crédits
-        <span id="modal-book-credits-delivery" style="display:none"> → <strong id="modal-book-credits-post">—</strong> crédits avec livraison</span>
-      </div>
-      <div class="step-indicator">
-        <div class="step-dot active" id="dot-1"></div>
-        <div class="step-dot" id="dot-2"></div>
-        <div class="step-dot" id="dot-3"></div>
-        <div class="step-dot" id="dot-4"></div>
-        <div class="step-dot" id="dot-5"></div>
-        <div class="step-dot" id="dot-6"></div>
-      </div>
-
-      <!-- ÉTAPE 1 : carte + nom -->
-      <div class="buy-step active" id="step-1">
-        <div><label>Numéro de carte</label><input type="text" id="buy-card" placeholder="ex : 01" autocomplete="off"></div>
-        <div><label>Nom du titulaire</label><input type="text" id="buy-name" placeholder="ex : Jean Dupont" autocomplete="off"></div>
-        <div class="modal-err" id="buy-err-1">✕ &nbsp;Carte introuvable ou nom incorrect.</div>
-        <div class="modal-actions"><button class="btn-modal-primary" id="btn-step1" onclick="buyStep1()">Vérifier ma carte →</button></div>
-      </div>
-
-      <!-- ÉTAPE 2 : solde -->
-      <div class="buy-step" id="step-2">
-        <div class="modal-info-box"><span class="big" id="step2-credits">—</span><span class="sub">crédits disponibles</span></div>
-        <div id="step2-status"></div>
-        <div class="modal-actions" id="step2-actions"></div>
-      </div>
-
-      <!-- ÉTAPE 3 : livraison (toujours affichée) -->
-      <div class="buy-step" id="step-3">
-        <p style="font-size:0.88rem;line-height:1.7;color:var(--muted);">Souhaitez-vous une <strong style="color:var(--ink)">livraison par La Poste</strong> ?<br><span style="font-size:0.78rem;color:var(--gold);">⚠ Le prix sera doublé en cas de livraison.</span></p>
-        <div class="modal-info-box" id="step3-price-box"></div>
-        <div class="modal-actions">
-          <button class="btn-modal-primary" onclick="buyChooseDelivery(true)">Oui, livraison →</button>
-          <button class="btn-modal-outline" onclick="buyChooseDelivery(false)">Non, merci →</button>
+    <!-- ─── COMMANDES ─── -->
+    <div class="section" id="section-commandes">
+      <div class="tbl-head" style="padding:0 0 18px;">
+        <div><div class="tbl-title">Toutes les commandes</div><div class="tbl-sub" id="commandes-count">—</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select class="form-input" id="cmd-filter-status" style="width:auto;padding:7px 12px;font-size:13px;">
+            <option value="">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="ready">Prête</option>
+          </select>
+          <select class="form-input" id="cmd-filter-book" style="width:auto;padding:7px 12px;font-size:13px;"><option value="">Tous les livres</option></select>
         </div>
       </div>
-
-      <!-- ÉTAPE 4 : créneau -->
-      <div class="buy-step" id="step-4">
-        <p style="font-size:0.88rem;line-height:1.7;color:var(--muted);">Pour <strong style="color:var(--ink)">quand</strong> souhaitez-vous recevoir votre livre ?</p>
-        <div id="creneaux-list"></div>
-        <div class="modal-err" id="buy-err-4">✕ &nbsp;Veuillez choisir un créneau.</div>
-        <div class="modal-actions">
-          <button class="btn-modal-outline" onclick="goToStep(3)">← Retour</button>
-          <button class="btn-modal-primary" onclick="validateCreneau()">Confirmer →</button>
-        </div>
-      </div>
-
-      <!-- ÉTAPE 5 : adresse ou email -->
-      <div class="buy-step" id="step-5">
-        <div id="step5-content"></div>
-        <div class="modal-err" id="buy-err-5">✕ &nbsp;Veuillez remplir ce champ.</div>
-        <div class="modal-actions">
-          <button class="btn-modal-outline" onclick="goToStep(4)">← Retour</button>
-          <button class="btn-modal-primary" onclick="buyFinalConfirm()">Confirmer l'achat →</button>
-        </div>
-      </div>
-
-      <!-- ÉTAPE 6 : succès -->
-      <div class="buy-step" id="step-6">
-        <div class="modal-success">
-          <div class="check">✦</div>
-          <h3 style="margin-bottom:0.8rem;">Commande confirmée</h3>
-          <p id="step6-msg"></p>
-        </div>
-        <div class="modal-actions" style="margin-top:1rem;"><button class="btn-modal-primary" onclick="closeBuyModal()">Fermer</button></div>
-      </div>
+      <div id="commandes-list"><div class="empty"><div class="empty-icon">🛒</div>Chargement…</div></div>
     </div>
-  </div>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo">P<span>✦</span>LIO</div>
-    <ul class="nav-links">
-      <li><a href="#catalogue">Catalogue</a></li>
-      <li><a href="#credits">Mes Crédits</a></li>
-      <li><a href="#how">Comment ça marche</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-bg-text">POLIO</div>
-    <div class="hero-eyebrow">Librairie exclusive</div>
-    <h1>Des œuvres qui <em>forgent</em> l'esprit</h1>
-    <p class="hero-desc">Une collection exceptionnelle de livres. Accédez aux titres avec vos crédits personnels, consultez votre solde à tout moment.</p>
-    <div class="hero-actions">
-      <a href="#catalogue" class="btn-primary">Découvrir le catalogue →</a>
-      <a href="#credits" class="btn-outline">Vérifier mes crédits</a>
+    <!-- ─── LIVRES ─── -->
+    <div class="section" id="section-livres">
+      <div id="books-grid" class="grid-3"><div class="empty"><div class="empty-icon">📚</div>Chargement…</div></div>
+      <button class="btn btn-gold" id="btn-add-book" style="margin-top:4px">+ Ajouter un livre</button>
     </div>
-    <div class="hero-scroll-hint"><div class="scroll-line"></div><span>Défiler</span></div>
-  </section>
 
-  <!-- CREDITS -->
-  <section id="credits">
-    <div class="credits-inner">
-      <div>
-        <div class="section-label">Espace client</div>
-        <h2 class="section-title" style="color:var(--parchment)">Vérifiez<br>vos crédits</h2>
-        <p>Entrez votre numéro de carte client pour consulter votre solde de crédits disponibles.</p>
+    <!-- ─── CRÉATEUR ─── -->
+    <div class="section" id="section-createur">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Manuscrits reçus</div>
+          <div class="panel-copy">Les manuscrits envoyés depuis l'espace créateur apparaissent ici. Modifiez les infos puis validez pour ajouter le livre au catalogue.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="A.loadManuscrits()">↻ Actualiser</button>
       </div>
-      <div>
-        <div class="credits-form">
-          <div class="credits-input-wrap"><input type="text" id="cardInput" placeholder="Numéro de carte  ex : 01" autocomplete="off"></div>
-          <div class="credits-error" id="creditsError">✕ &nbsp;Carte introuvable. Vérifiez le numéro ou contactez-nous.</div>
-          <button class="btn-gold" onclick="checkCredits()">Consulter mon solde</button>
-          <div class="credits-result" id="creditsResult">
-            <p class="client-name" id="resultName">—</p>
-            <div class="credit-count" id="resultCredits">0</div>
-            <div class="credit-label">crédits disponibles</div>
+      <div id="createur-list"><div class="empty"><div class="empty-icon">✍️</div>Chargement…</div></div>
+    </div>
+
+    <!-- ─── ACCÈS ─── -->
+    <div class="section" id="section-acces">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Contrôle d'accès</div>
+          <div class="panel-copy">Ouvrez ou fermez le site client en un clic.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="A.loadAcces()">↻ Actualiser</button>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:20px;align-items:start;">
+        <div class="panel-card">
+          <div id="status-display" class="acces-status">Chargement…</div>
+          <div class="form-group" style="margin-top:16px;">
+            <label class="form-lbl">Message quand le site est fermé</label>
+            <textarea class="form-input" id="closed-message" rows="4" placeholder="Ex: Polio est momentanément fermé. Revenez bientôt."></textarea>
           </div>
-          <button class="btn-recharge" onclick="openRechargeModal()">+ Ajouter des crédits</button>
+          <div class="btn-row">
+            <button class="btn btn-unban" id="btn-open">🔓 Ouvrir</button>
+            <button class="btn btn-danger" id="btn-close">🔒 Fermer</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:14px;font-family:'DM Mono',monospace;">
+            BDD : table <strong style="color:var(--gold)">site_access</strong> · site_key = <strong style="color:var(--gold)">polio-client</strong>
+          </div>
+        </div>
+        <div class="panel-card" style="padding:16px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+            <span>Aperçu live — polio-client5.vercel.app</span>
+            <button class="btn btn-ghost btn-sm" onclick="var f=document.getElementById('site-iframe');f.src=f.src">↻</button>
+          </div>
+          <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+            <div style="background:var(--surface);padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">
+              <div style="display:flex;gap:5px;">
+                <div style="width:10px;height:10px;border-radius:50%;background:#e05555;"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#f97316;"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#4eca8b;"></div>
+              </div>
+              <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">polio-client5.vercel.app</div>
+            </div>
+            <iframe id="site-iframe" src="https://polio-client5.vercel.app" style="width:100%;height:500px;border:none;display:block;" loading="lazy" title="Aperçu Polio Client"></iframe>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </main>
+</div>
 
-  <!-- CATALOGUE -->
-  <section id="catalogue">
-    <div class="catalogue-header fade-up">
-      <div class="section-label">Nos titres</div>
-      <h2 class="section-title">Le Catalogue</h2>
-      <p style="color:var(--muted);font-weight:300;max-width:50ch;line-height:1.8;font-size:0.9rem;">Une sélection rigoureuse de livres acquérables avec vos crédits.</p>
+<!-- ═══════════════ MODALS ═══════════════ -->
+<div class="overlay" id="overlay">
+
+  <!-- Nouvelle carte -->
+  <div class="modal" id="m-add-client" style="display:none">
+    <button class="modal-x" onclick="A.closeModal()">✕</button>
+    <div class="modal-title">Nouvelle carte client</div>
+    <div class="modal-sub">Créer une carte avec crédits initiaux</div>
+    <div class="form-group"><label class="form-lbl">Nom du client</label><input class="form-input" id="nc-name" placeholder="Ex: Marie Dupont"></div>
+    <div class="form-group"><label class="form-lbl">N° de carte</label><input class="form-input" id="nc-card" placeholder="Ex: 01"></div>
+    <div class="form-group"><label class="form-lbl">Crédits initiaux</label><input class="form-input" type="number" id="nc-credits" placeholder="0" min="0"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-gold" id="btn-ok-add-client">Créer la carte</button>
     </div>
-    <div class="catalogue-grid"><div id="dynamic-books"></div></div>
-  </section>
+  </div>
 
-  <div class="ornamental-divider">✦</div>
+  <!-- Ajouter crédits -->
+  <div class="modal" id="m-add-credits" style="display:none">
+    <button class="modal-x" onclick="A.closeModal()">✕</button>
+    <div class="modal-title">Gérer les crédits</div>
+    <div class="modal-sub" id="mc-sub"></div>
+    <div class="form-group"><label class="form-lbl">Livre à attribuer</label><select class="form-input" id="mc-book"></select></div>
+    <div class="form-group"><label class="form-lbl">Ou montant libre (positif = ajout, négatif = retrait)</label><input class="form-input" type="number" id="mc-custom" placeholder="Ex: 150 ou -50"></div>
+    <div class="form-group"><label class="form-lbl">Nouveau solde total (remplacement direct)</label><input class="form-input" type="number" id="mc-total" placeholder="Laisser vide pour ignorer" min="0"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-gold" id="btn-ok-credits">Appliquer</button>
+    </div>
+  </div>
 
-  <!-- HOW -->
-  <section id="how">
-    <div class="how-inner">
-      <div><div class="section-label">Guide</div><h2 class="section-title">Comment<br>ça marche</h2></div>
-      <div class="how-steps">
-        <div class="how-step fade-up"><div class="step-number">01</div><div class="step-content"><h4>Obtenez votre carte client</h4><p>Votre carte Polio vous est attribuée lors de votre inscription. Elle contient un numéro unique et un solde de crédits initial.</p></div></div>
-        <div class="how-step fade-up"><div class="step-number">02</div><div class="step-content"><h4>Consultez votre solde</h4><p>À tout moment, entrez votre numéro de carte dans la section "Mes Crédits" pour vérifier votre solde disponible.</p></div></div>
-        <div class="how-step fade-up"><div class="step-number">03</div><div class="step-content"><h4>Choisissez un livre</h4><p>Parcourez notre catalogue et sélectionnez un titre disponible. Chaque livre a un coût en crédits indiqué sur sa fiche.</p></div></div>
-        <div class="how-step fade-up"><div class="step-number">04</div><div class="step-content"><h4>Finalisez l'achat</h4><p>Choisissez livraison ou retrait, sélectionnez votre créneau — vos crédits sont débités instantanément.</p></div></div>
+  <!-- Modifier livre -->
+  <div class="modal" id="m-edit-book" style="display:none">
+    <button class="modal-x" onclick="A.closeModal()">✕</button>
+    <div class="modal-title">✏️ Modifier le livre</div>
+    <div class="modal-sub">Synchronisé avec le site client</div>
+    <input type="hidden" id="eb-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Titre *</label><input class="form-input" id="eb-title"></div>
+      <div class="form-group"><label class="form-lbl">Auteur</label><input class="form-input" id="eb-author"></div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Description</label><textarea class="form-input" id="eb-desc"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Crédits requis</label><input class="form-input" type="number" id="eb-credits" min="0"></div>
+      <div class="form-group"><label class="form-lbl">Couleur</label>
+        <select class="form-input" id="eb-color">
+          <option value="cover-elite">Or / Nuit</option>
+          <option value="cover-coming1">Rouge / Sombre</option>
+          <option value="cover-coming2">Bleu / Nuit</option>
+          <option value="cover-coming3">Ambre / Sombre</option>
+        </select>
       </div>
     </div>
-  </section>
+    <div class="form-group"><label class="form-lbl">Icône</label>
+      <div class="icon-picker" id="eb-icon-picker"></div>
+      <input type="hidden" id="eb-icon">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-gold" id="btn-ok-edit-book">💾 Sauvegarder</button>
+    </div>
+  </div>
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="contact-inner">
-      <div class="contact-info fade-up">
-        <div class="section-label">Nous joindre</div>
-        <h2 class="section-title">Contact</h2>
-        <p>Une question sur votre carte, un titre, ou une commande ? Réponse sous 24–48 h.</p>
-        <div class="contact-detail"><div class="contact-detail-icon">✉</div><div class="contact-detail-text"><strong>Email</strong><a href="mailto:gustave.bo@protonmail.com">gustave.bo@protonmail.com</a></div></div>
-        <div class="contact-detail"><div class="contact-detail-icon">⏱</div><div class="contact-detail-text"><strong>Délai de réponse</strong>24 à 48 heures ouvrées</div></div>
-        <div class="contact-detail"><div class="contact-detail-icon">❓</div><div class="contact-detail-text"><strong>Sujets fréquents</strong>Solde de crédits · Commandes · Disponibilités</div></div>
-      </div>
-      <div class="fade-up">
-        <form class="contact-form" onsubmit="submitContact(event)">
-          <div class="form-row">
-            <div class="form-group"><label>Prénom</label><input type="text" required placeholder="Jean"></div>
-            <div class="form-group"><label>Nom</label><input type="text" required placeholder="Dupont"></div>
-          </div>
-          <div class="form-group"><label>Email</label><input type="email" required placeholder="votre@email.com"></div>
-          <div class="form-group"><label>N° de carte (optionnel)</label><input type="text" placeholder="01"></div>
-          <div class="form-group"><label>Sujet</label><select><option value="">Sélectionnez un sujet</option><option>Solde de crédits</option><option>Commande d'un livre</option><option>Disponibilité d'un titre</option><option>Problème avec ma carte</option><option>Autre</option></select></div>
-          <div class="form-group"><label>Message</label><textarea required placeholder="Décrivez votre demande..."></textarea></div>
-          <button type="submit" class="btn-gold">Envoyer le message →</button>
-          <div class="form-success" id="formSuccess">✓ &nbsp;Message envoyé. Nous vous répondrons sous 48 h.</div>
-        </form>
+  <!-- Ajouter livre -->
+  <div class="modal" id="m-add-book" style="display:none">
+    <button class="modal-x" onclick="A.closeModal()">✕</button>
+    <div class="modal-title">📚 Nouveau livre</div>
+    <div class="modal-sub">Apparaît immédiatement sur le site client</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Titre *</label><input class="form-input" id="ab-title" placeholder="Ex: L'Élite de la Force"></div>
+      <div class="form-group"><label class="form-lbl">Auteur</label><input class="form-input" id="ab-author" placeholder="Polio Éditions"></div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Description</label><textarea class="form-input" id="ab-desc" placeholder="Résumé du livre…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Crédits requis</label><input class="form-input" type="number" id="ab-credits" placeholder="0" min="0"></div>
+      <div class="form-group"><label class="form-lbl">Couleur</label>
+        <select class="form-input" id="ab-color">
+          <option value="cover-elite">Or / Nuit</option>
+          <option value="cover-coming1">Rouge / Sombre</option>
+          <option value="cover-coming2">Bleu / Nuit</option>
+          <option value="cover-coming3">Ambre / Sombre</option>
+        </select>
       </div>
     </div>
-  </section>
+    <div class="form-group"><label class="form-lbl">Icône</label>
+      <div class="icon-picker" id="ab-icon-picker"></div>
+      <input type="hidden" id="ab-icon" value="⚔">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-gold" id="btn-ok-add-book">✦ Ajouter au catalogue</button>
+    </div>
+  </div>
 
-  <footer>
-    <div class="footer-logo">P<span>✦</span>LIO</div>
-    <p>© 2026 Polio Éditions — Tous droits réservés</p>
-    <a href="mailto:gustave.bo@protonmail.com">gustave.bo@protonmail.com</a>
-  </footer>
+  <!-- Valider manuscrit créateur -->
+  <div class="modal" id="m-creator-book" style="display:none">
+    <button class="modal-x" onclick="A.closeModal()">✕</button>
+    <div class="modal-title">📚 Valider le manuscrit</div>
+    <div class="modal-sub">Modifier si besoin puis ajouter au catalogue</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Titre *</label><input class="form-input" id="cb-title"></div>
+      <div class="form-group"><label class="form-lbl">Auteur</label><input class="form-input" id="cb-author"></div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Description (résumé pour le catalogue)</label><textarea class="form-input" id="cb-desc" placeholder="Court résumé pour le catalogue…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Crédits requis</label><input class="form-input" type="number" id="cb-credits" min="0"></div>
+      <div class="form-group"><label class="form-lbl">Couleur</label>
+        <select class="form-input" id="cb-color">
+          <option value="cover-elite">Or / Nuit</option>
+          <option value="cover-coming1">Rouge / Sombre</option>
+          <option value="cover-coming2">Bleu / Nuit</option>
+          <option value="cover-coming3">Ambre / Sombre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Icône</label>
+      <div class="icon-picker" id="cb-icon-picker"></div>
+      <input type="hidden" id="cb-icon" value="📖">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-gold" id="btn-ok-creator-book">✦ Ajouter au catalogue</button>
+    </div>
+  </div>
 
-  <script>
-    const SUPABASE_URL = 'https://comxzjhzpbwplibkfasw.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_0r8i0ntrXnvOMUomFu9pZA_4cmGf8vp';
-    const WEB3FORMS_KEY = '919f99e1-d0da-448d-b85b-17f03f4e87df';
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <!-- Confirmation ban -->
+  <div class="modal" id="m-confirm" style="display:none">
+    <div class="modal-title" id="confirm-title" style="font-size:18px;padding-right:10px"></div>
+    <div class="modal-sub" id="confirm-sub"></div>
+    <div class="modal-footer" style="margin-top:22px">
+      <button class="btn btn-ghost" onclick="A.closeModal()">Annuler</button>
+      <button class="btn btn-danger" id="btn-ok-confirm">Confirmer</button>
+    </div>
+  </div>
 
-    // FADE UP
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { const s = e.target.parentElement?.querySelectorAll('.fade-up'); if (s) [...s].forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 120)); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</div>
 
-    const COVER_PATTERNS = {
-      'cover-elite':   'linear-gradient(160deg, #1a1208 0%, #2d1f0a 50%, #0d0b08 100%)',
-      'cover-coming1': 'linear-gradient(160deg, #1a0d0d 0%, #2a1515 100%)',
-      'cover-coming2': 'linear-gradient(160deg, #0d1520 0%, #142030 100%)',
-      'cover-coming3': 'linear-gradient(160deg, #151208 0%, #251e0c 100%)',
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  POLIO ADMIN — toutes fonctions globales
+// ═══════════════════════════════════════
+
+var SB_URL = 'https://comxzjhzpbwplibkfasw.supabase.co';
+var SB_KEY = 'sb_publishable_0r8i0ntrXnvOMUomFu9pZA_4cmGf8vp';
+var db = supabase.createClient(SB_URL, SB_KEY);
+
+var ICONS = ['⚔','◈','◉','✦','⬡','☽','📖','🌟','🔮','💎','🌙','🔥','🌊','✨','🏹','👑'];
+
+// État global
+var state = { books: [], clients: [], commandes: [], manuscrits: [], selCid: null, confirmCb: null };
+
+// ─── Utilitaires ───────────────────────
+function G(id) { return document.getElementById(id); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function fmtDateTime(d) {
+  if (!d) return '—';
+  var dt = new Date(d);
+  return dt.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) + ' ' +
+         dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+function creditCls(n) { return n >= 100 ? 'ch' : n >= 30 ? 'cm' : 'cl'; }
+function initials(name) {
+  return (name || '').split(' ').map(function(w) { return w[0] || ''; }).join('').toUpperCase().slice(0, 2) || '?';
+}
+function escH(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function toast(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type || 'ok');
+  el.textContent = msg;
+  G('toasts').appendChild(el);
+  setTimeout(function() { el.remove(); }, 3400);
+}
+function sbErr(err) { toast('❌ ' + (err && err.message ? err.message : JSON.stringify(err)), 'err'); console.error(err); }
+function setLoading(on) { var el = G('loading-bar'); if (el) el.style.opacity = on ? '1' : '0'; }
+
+function buildIconPicker(pickerId, hiddenId, selected) {
+  var picker = G(pickerId);
+  picker.innerHTML = '';
+  ICONS.forEach(function(ic) {
+    var d = document.createElement('div');
+    d.className = 'icon-opt' + (ic === selected ? ' selected' : '');
+    d.textContent = ic;
+    d.onclick = function() {
+      picker.querySelectorAll('.icon-opt').forEach(function(x) { x.classList.remove('selected'); });
+      d.classList.add('selected');
+      G(hiddenId).value = ic;
     };
+    picker.appendChild(d);
+  });
+  G(hiddenId).value = selected || ICONS[0];
+}
 
-    function isAvailable(book) {
-      const t = (book.title || '').toLowerCase();
-      return !t.includes('en cours') && !t.includes('prochainement') && !t.includes('2027') && book.description !== 'Non dispo';
-    }
+// ─── Objet public A (Admin) ─────────────
+var A = {};
 
-    function buildCard(book) {
-      const words = (book.title || '').split(' ');
-      const half  = Math.ceil(words.length / 2);
-      const card  = document.createElement('div');
-      card.className = 'book-card fade-up';
-      const avail = isAvailable(book);
-      const desc  = (!book.description || ['non dispo','prochainement','bientot','bientôt'].includes((book.description||'').toLowerCase().trim()))
-        ? 'Prochainement disponible dans notre catalogue.'
-        : book.description;
-      card.innerHTML = `
-        <div class="book-cover" style="background:${COVER_PATTERNS[book.color]||COVER_PATTERNS['cover-elite']}">
-          <div class="book-cover-pattern"></div>
-          <div class="book-cover-ornament">${book.icon||'✦'}</div>
-          <span class="book-badge ${avail?'badge-available':'badge-soon'}">${avail?'Disponible':'Bientôt'}</span>
-          <div class="book-cover-title">${words.slice(0,Math.ceil(words.length/2)).join(' ')}${words.length>1?'<br>'+words.slice(Math.ceil(words.length/2)).join(' '):''}</div>
-          <div class="book-cover-author">${book.author||'Polio Éditions'}</div>
-        </div>
-        <div class="book-info">
-          <h3>${book.title}</h3>
-          <div class="author">${book.author||'Polio Éditions'}</div>
-          <p class="description">${desc}</p>
-          <div class="book-footer">
-            <div class="book-credits"><span class="number">${book.credits||'—'}</span><span class="label">crédits</span></div>
-            ${avail ? `<button class="btn-buy" onclick='openBuyModal(${JSON.stringify(book).replace(/'/g,"&#39;")})'>Acheter →</button>` : `<span class="book-status-text">En préparation</span>`}
-          </div>
-        </div>`;
-      return card;
-    }
+// ─── Modal ─────────────────────────────
+A.openModal = function(id) {
+  document.querySelectorAll('.modal').forEach(function(m) { m.style.display = 'none'; });
+  G(id).style.display = 'block';
+  G('overlay').classList.add('open');
+};
+A.closeModal = function() { G('overlay').classList.remove('open'); };
+G('overlay').addEventListener('click', function(e) { if (e.target === G('overlay')) A.closeModal(); });
 
-    async function loadBooksFromDB() {
-      try {
-        const { data, error } = await db.from('books').select('*').order('created_at', { ascending: true });
-        if (error) throw error;
-        const container = document.getElementById('dynamic-books');
-        (data||[]).forEach(book => {
-          const card = buildCard(book);
-          container.parentElement.insertBefore(card, container);
-          requestAnimationFrame(() => card.classList.add('visible'));
-        });
-      } catch(err) { console.warn('Books:', err.message); }
-    }
+// ─── Tabs ──────────────────────────────
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(function(x) { x.classList.remove('active'); });
+    document.querySelectorAll('.section').forEach(function(x) { x.classList.remove('active'); });
+    item.classList.add('active');
+    var tab = item.dataset.tab;
+    var sec = G('section-' + tab);
+    if (sec) sec.classList.add('active');
+    if (tab === 'commandes') A.renderCommandes();
+    if (tab === 'createur') A.loadManuscrits();
+    if (tab === 'acces') A.loadAcces();
+  });
+});
 
-    async function checkCredits() {
-      const raw = document.getElementById('cardInput').value.trim();
-      const result = document.getElementById('creditsResult');
-      const errEl  = document.getElementById('creditsError');
-      result.classList.remove('visible'); errEl.classList.remove('visible');
-      if (!raw) return;
-      const { data } = await db.from('clients').select('name,credits').eq('card_number', raw).limit(1);
-      if (!data || !data.length) { errEl.classList.add('visible'); return; }
-      const c = data[0];
-      document.getElementById('resultName').textContent = c.name;
-      result.classList.add('visible');
-      const total = parseInt(c.credits)||0;
-      let n = 0; document.getElementById('resultCredits').textContent = 0;
-      const iv = setInterval(() => { n++; document.getElementById('resultCredits').textContent = n; if (n >= total) clearInterval(iv); }, Math.max(20, Math.floor(800/(total||1))));
-    }
-    document.getElementById('cardInput').addEventListener('keydown', e => { if (e.key==='Enter') checkCredits(); });
+// ─── Chargement initial ────────────────
+A.loadAll = async function() {
+  setLoading(true);
+  try {
+    var rC = await db.from('clients').select('*').order('name');
+    var rB = await db.from('books').select('*').order('created_at');
+    var rCmd = await db.from('commandes').select('*').order('created_at', { ascending: false });
+    if (rC.error) throw rC.error;
+    if (rB.error) throw rB.error;
+    state.clients = rC.data || [];
+    state.books = rB.data || [];
+    state.commandes = rCmd.data || [];
+    A.renderAll();
+  } catch(e) { sbErr(e); }
+  setLoading(false);
+};
 
-    async function checkGlobalAccess() {
-      try {
-        const { data } = await db.from('site_access').select('is_open,closed_message').eq('site_key','polio-client').single();
-        if (data && data.is_open === false) {
-          document.getElementById('closed-overlay').style.display = 'flex';
-          document.getElementById('closed-message-display').textContent = data.closed_message;
-          document.body.style.overflow = 'hidden';
-        }
-      } catch(e) {}
-    }
+A.renderAll = function() {
+  A.renderStats();
+  A.renderClients();
+  A.renderBooksGrid();
+  A.renderCommandes();
+  A.renderBookFilter();
+};
 
-    async function submitContact(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector('button[type="submit"]');
-      const inputs = e.target.querySelectorAll('input[type="text"]');
-      btn.textContent = 'Envoi…'; btn.disabled = true;
-      try {
-        const res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: '[Polio Contact] ' + (e.target.querySelector('select')?.value||'Message'), from_name: (inputs[0]?.value||'')+' '+(inputs[1]?.value||''), email: e.target.querySelector('input[type="email"]')?.value||'', message: e.target.querySelector('textarea')?.value||'' })
-        });
-        const json = await res.json();
-        if (json.success) { document.getElementById('formSuccess').classList.add('visible'); e.target.reset(); }
-      } catch(err) { alert('Erreur : '+err.message); }
-      btn.textContent = 'Envoyer le message →'; btn.disabled = false;
-    }
+// ─── Stats ─────────────────────────────
+A.renderStats = function() {
+  var totalCr = state.clients.reduce(function(a, c) { return a + (parseInt(c.credits) || 0); }, 0);
+  var cmdPending = state.commandes.filter(function(c) { return c.status !== 'ready'; }).length;
+  var cmdReady = state.commandes.filter(function(c) { return c.status === 'ready'; }).length;
+  G('s-clients').textContent = state.clients.length;
+  G('s-credits').textContent = totalCr.toLocaleString('fr-FR');
+  G('s-commandes').textContent = state.commandes.length;
+  G('s-commandes-desc').textContent = cmdPending + ' en attente · ' + cmdReady + ' prêtes';
+  G('s-livres').textContent = state.books.length;
+  G('ss-clients').textContent = state.clients.length;
+  G('ss-commandes').textContent = state.commandes.length;
+  G('ss-livres').textContent = state.books.length;
+};
 
-    // ═══════════════════════════════════
-    // ACHAT
-    // ═══════════════════════════════════
-    let _buyBook=null, _buyClient=null, _buyDelivery=false, _buyFinalPrice=0, _buyCreneau=null;
+// ─── Clients ───────────────────────────
+A.renderClients = function(filter) {
+  var list = state.clients.filter(function(c) {
+    if (!filter) return true;
+    var q = filter.toLowerCase();
+    return (c.name || '').toLowerCase().includes(q) || (c.card_number || '').toLowerCase().includes(q);
+  });
+  G('clients-count').textContent = list.length + ' client' + (list.length > 1 ? 's' : '');
+  if (!list.length) {
+    G('tbody').innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">💳</div>Aucun client</td></tr>';
+    return;
+  }
+  G('tbody').innerHTML = list.map(function(c) {
+    var cmdCount = state.commandes.filter(function(o) { return o.client_carte === c.card_number; }).length;
+    var isBanned = !!c.banned;
+    var banBtn = isBanned
+      ? '<button class="btn btn-unban btn-sm" onclick="A.toggleBan(' + c.id + ',false)">✓ Débannir</button>'
+      : '<button class="btn btn-ban btn-sm" onclick="A.toggleBan(' + c.id + ',true)">🚫 Bannir</button>';
+    return '<tr class="' + (isBanned ? 'banned-row' : '') + '">' +
+      '<td><div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="width:34px;height:34px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(200,169,110,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold);font-family:Playfair Display,serif">' + initials(c.name) + '</div>' +
+        '<div><div style="font-weight:600">' + escH(c.name) + (isBanned ? '<span class="banned-badge">🚫 banni</span>' : '') + '</div>' +
+        '<div style="font-size:11px;color:var(--muted)">' + cmdCount + ' commande' + (cmdCount > 1 ? 's' : '') + '</div></div>' +
+      '</div></td>' +
+      '<td><span style="font-family:DM Mono,monospace;font-size:12px">' + escH(c.card_number || '—') + '</span></td>' +
+      '<td><span class="credit-badge ' + creditCls(parseInt(c.credits) || 0) + '">' + (parseInt(c.credits) || 0) + '</span></td>' +
+      '<td>' + (isBanned ? '<span class="status-badge sb-banned">🚫 Banni</span>' : '<span class="status-badge sb-ready">✓ Actif</span>') + '</td>' +
+      '<td style="font-size:13px;color:var(--muted)">' + fmtDate(c.last_purchase) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="A.openAddCredits(' + c.id + ')">+ Crédits</button>' +
+        banBtn +
+        '<button class="btn btn-danger btn-sm" onclick="A.deleteClient(' + c.id + ',\'' + escH(c.name) + '\')">Suppr.</button>' +
+      '</div></td></tr>';
+  }).join('');
+};
 
-    function goToStep(n) {
-      [1,2,3,4,5,6].forEach(i => {
-        document.getElementById('step-'+i).classList.toggle('active', i===n);
-        const d = document.getElementById('dot-'+i);
-        if (d) d.classList.toggle('active', i===n);
-      });
-      if (n===3) initStep3();
-      if (n===4) loadCreneaux();
-      if (n===5) initStep5();
-    }
+G('search-input').addEventListener('input', function() { A.renderClients(this.value); });
 
-    function openBuyModal(book) {
-      _buyBook=book; _buyClient=null; _buyDelivery=false; _buyFinalPrice=0; _buyCreneau=null;
-      document.getElementById('modal-book-title').textContent = book.title||'Livre';
-      document.getElementById('modal-book-credits').textContent = book.credits||'—';
-      document.getElementById('modal-book-credits-delivery').style.display = 'none';
-      document.getElementById('buy-err-1').classList.remove('show');
-      // Pré-remplir si solde consulté
-      const ci = document.getElementById('cardInput').value.trim();
-      const ni = document.getElementById('resultName').textContent;
-      document.getElementById('buy-card').value = (ci && ni !== '—') ? ci : '';
-      document.getElementById('buy-name').value = (ci && ni !== '—') ? ni : '';
-      goToStep(1);
-      document.getElementById('buy-overlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
+// ─── Bannir / Débannir ────────────────
+A.toggleBan = async function(id, ban) {
+  var c = state.clients.find(function(x) { return x.id === id; });
+  if (!c) return;
+  var msg = ban
+    ? 'Bannir ' + c.name + ' ? Le client ne pourra plus accéder au site.'
+    : 'Débannir ' + c.name + ' ? Le client retrouvera l\'accès.';
+  G('confirm-title').textContent = ban ? '🚫 Bannir ce client ?' : '✓ Débannir ce client ?';
+  G('confirm-sub').textContent = msg;
+  G('btn-ok-confirm').className = ban ? 'btn btn-ban' : 'btn btn-unban';
+  G('btn-ok-confirm').textContent = ban ? '🚫 Confirmer le ban' : '✓ Débannir';
+  state.confirmCb = async function() {
+    setLoading(true);
+    var r = await db.from('clients').update({ banned: ban }).eq('id', id);
+    if (r.error) { sbErr(r.error); setLoading(false); return; }
+    c.banned = ban;
+    A.closeModal();
+    A.renderClients(G('search-input').value);
+    A.renderStats();
+    toast(ban ? '🚫 ' + c.name + ' a été banni' : '✓ ' + c.name + ' a été débanni', ban ? 'err' : 'ok');
+    setLoading(false);
+  };
+  G('btn-ok-confirm').onclick = state.confirmCb;
+  A.openModal('m-confirm');
+};
 
-    function closeBuyModal() { document.getElementById('buy-overlay').classList.remove('open'); document.body.style.overflow = ''; }
-    document.getElementById('buy-overlay').addEventListener('click', e => { if (e.target===document.getElementById('buy-overlay')) closeBuyModal(); });
+// ─── Crédits ──────────────────────────
+A.openAddCredits = function(cid) {
+  state.selCid = cid;
+  var c = state.clients.find(function(x) { return x.id === cid; });
+  G('mc-sub').textContent = 'Client : ' + c.name + ' — solde actuel : ' + (parseInt(c.credits) || 0) + ' crédits';
+  var opts = state.books.map(function(b) {
+    return '<option value="' + b.credits + '">' + escH(b.title) + ' (' + b.credits + ' cr.)</option>';
+  }).join('');
+  G('mc-book').innerHTML = '<option value="">— Choisir un livre —</option>' + opts;
+  G('mc-custom').value = '';
+  G('mc-total').value = '';
+  A.openModal('m-add-credits');
+};
 
-    async function buyStep1() {
-      const cardVal = document.getElementById('buy-card').value.trim();
-      const nameVal = document.getElementById('buy-name').value.trim().toLowerCase();
-      const errEl   = document.getElementById('buy-err-1');
-      const btn     = document.getElementById('btn-step1');
-      errEl.classList.remove('show');
-      if (!cardVal||!nameVal) { errEl.classList.add('show'); return; }
-      btn.textContent='Vérification…'; btn.disabled=true;
-      const { data } = await db.from('clients').select('name,credits,card_number').eq('card_number',cardVal).limit(1);
-      btn.textContent='Vérifier ma carte →'; btn.disabled=false;
-      if (!data||!data.length||data[0].name.trim().toLowerCase()!==nameVal) { errEl.classList.add('show'); return; }
-      _buyClient = data[0];
-      const credits  = parseInt(_buyClient.credits)||0;
-      const bookCost = parseInt(_buyBook.credits)||0;
-      const enough   = credits >= bookCost;
-      document.getElementById('step2-credits').textContent = credits;
-      document.getElementById('step2-status').innerHTML = enough
-        ? `<span class="modal-ok">✓ Solde suffisant (${bookCost} crédit${bookCost>1?'s':''} requis)</span>`
-        : `<span class="modal-warn">✕ Solde insuffisant — ${bookCost} crédits requis, vous en avez ${credits}.</span>`;
-      document.getElementById('step2-actions').innerHTML = enough
-        ? `<button class="btn-modal-primary" onclick="goToStep(3)">Continuer →</button>`
-        : `<button class="btn-modal-outline" onclick="closeBuyModal()">Fermer</button>`;
-      goToStep(2);
-    }
-    document.getElementById('buy-card').addEventListener('keydown', e => { if (e.key==='Enter') buyStep1(); });
-    document.getElementById('buy-name').addEventListener('keydown', e => { if (e.key==='Enter') buyStep1(); });
+G('btn-ok-credits').addEventListener('click', async function() {
+  var c = state.clients.find(function(x) { return x.id === state.selCid; });
+  var current = parseInt(c.credits) || 0;
+  var totalField = G('mc-total').value.trim();
+  var customField = G('mc-custom').value.trim();
+  var bookVal = parseInt(G('mc-book').value) || 0;
+  var newCredits;
+  var label;
+  if (totalField !== '') {
+    newCredits = Math.max(0, parseInt(totalField));
+    label = 'Solde fixé à ' + newCredits;
+  } else if (customField !== '') {
+    var delta = parseInt(customField);
+    newCredits = Math.max(0, current + delta);
+    label = (delta >= 0 ? '+' + delta : delta) + ' crédits → ' + c.name;
+  } else if (bookVal) {
+    newCredits = current + bookVal;
+    label = '+' + bookVal + ' crédits → ' + c.name;
+  } else {
+    toast('Remplissez au moins un champ', 'err'); return;
+  }
+  setLoading(true);
+  var r = await db.from('clients').update({ credits: newCredits, last_purchase: today() }).eq('id', c.id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  c.credits = newCredits;
+  c.last_purchase = today();
+  A.closeModal();
+  A.renderAll();
+  toast('✦ ' + label, 'ok');
+  setLoading(false);
+});
 
-    function initStep3() {
-      const bc = parseInt(_buyBook.credits)||0, pc = bc*2;
-      document.getElementById('step3-price-box').innerHTML =
-        `<span class="sub">Sans livraison</span> <strong style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.1rem;">${bc} crédits</strong>&nbsp;&nbsp;→&nbsp;&nbsp;<span class="sub">Avec livraison</span> <strong style="font-family:'Cinzel',serif;color:var(--rust);font-size:1.1rem;">${pc} crédits</strong>`;
-      document.getElementById('modal-book-credits-delivery').style.display='';
-      document.getElementById('modal-book-credits-post').textContent=pc;
-    }
+// ─── Supprimer client ─────────────────
+A.deleteClient = async function(id, name) {
+  if (!confirm('Supprimer définitivement ' + name + ' ? Cette action est irréversible.')) return;
+  setLoading(true);
+  var r = await db.from('clients').delete().eq('id', id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.clients = state.clients.filter(function(x) { return x.id !== id; });
+  A.renderAll();
+  toast('Client supprimé', 'ok');
+  setLoading(false);
+};
 
-    function buyChooseDelivery(wantsDelivery) {
-      const bc = parseInt(_buyBook.credits)||0;
-      _buyDelivery   = wantsDelivery;
-      _buyFinalPrice = wantsDelivery ? bc*2 : bc;
-      if (wantsDelivery) {
-        const credits = parseInt(_buyClient.credits)||0;
-        if (credits < _buyFinalPrice) {
-          document.getElementById('step2-status').innerHTML = `<span class="modal-warn">✕ Solde insuffisant pour la livraison — ${_buyFinalPrice} crédits requis, vous en avez ${credits}.</span>`;
-          document.getElementById('step2-actions').innerHTML = `<button class="btn-modal-outline" onclick="goToStep(3)">← Retour</button><button class="btn-modal-outline" onclick="closeBuyModal()">Fermer</button>`;
-          goToStep(2); return;
-        }
-      }
-      goToStep(4);
-    }
+// ─── Ajouter client ───────────────────
+G('btn-new-client').addEventListener('click', function() {
+  G('nc-name').value = ''; G('nc-card').value = ''; G('nc-credits').value = '';
+  A.openModal('m-add-client');
+});
 
-    async function loadCreneaux() {
-      const list = document.getElementById('creneaux-list');
-      list.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);">Chargement…</p>';
-      _buyCreneau = null;
-      try {
-        const { data } = await db.from('creneaux').select('*').eq('actif',true).eq('book_id', _buyBook.id).order('date_debut',{ascending:true});
-        if (!data||!data.length) { list.innerHTML='<p style="font-size:0.82rem;color:var(--muted);">Aucun créneau disponible pour ce livre.</p>'; return; }
-        list.innerHTML='';
-        data.forEach(cr => {
-          const restant = cr.max_commandes - cr.nb_commandes;
-          const full = restant <= 0;
-          const el = document.createElement('div');
-          el.className = 'creneau-option' + (full?' disabled':'');
-          el.innerHTML = `<span class="creneau-label">${cr.label}</span><span class="creneau-dispo ${full?'full':''}">${full?'Complet':restant+' place'+(restant>1?'s':'')+' restante'+(restant>1?'s':'')}</span>`;
-          if (!full) el.onclick = () => { document.querySelectorAll('.creneau-option').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); _buyCreneau=cr; };
-          list.appendChild(el);
-        });
-      } catch(err) { list.innerHTML='<p style="font-size:0.82rem;color:var(--muted);">Erreur chargement créneaux.</p>'; }
-    }
+G('btn-ok-add-client').addEventListener('click', async function() {
+  var name = G('nc-name').value.trim(), card = G('nc-card').value.trim();
+  var credits = parseInt(G('nc-credits').value) || 0;
+  if (!name || !card) { toast('Nom et numéro requis', 'err'); return; }
+  setLoading(true);
+  var r = await db.from('clients').insert([{ name: name, card_number: card, credits: credits, last_purchase: today() }]).select().single();
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.clients.push({ id: r.data.id, name: name, card_number: card, credits: credits, last_purchase: today(), banned: false });
+  state.clients.sort(function(a, b) { return a.name.localeCompare(b.name); });
+  A.closeModal();
+  A.renderAll();
+  toast('✦ Carte créée pour ' + name, 'ok');
+  setLoading(false);
+});
 
-    function validateCreneau() {
-      const errEl = document.getElementById('buy-err-4');
-      errEl.classList.remove('show');
-      if (!_buyCreneau) { errEl.classList.add('show'); return; }
-      goToStep(5);
-    }
+// ─── Commandes ────────────────────────
+A.renderBookFilter = function() {
+  var sel = G('cmd-filter-book');
+  sel.innerHTML = '<option value="">Tous les livres</option>';
+  state.books.forEach(function(b) { sel.innerHTML += '<option value="' + b.id + '">' + escH(b.title) + '</option>'; });
+};
 
-    function initStep5() {
-      document.getElementById('step5-content').innerHTML = _buyDelivery
-        ? `<p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">Indiquez votre <strong style="color:var(--ink)">adresse postale</strong> pour la livraison.</p><div><label>Adresse postale</label><input type="text" id="buy-adresse" placeholder="12 rue des Livres, 44000 Nantes" autocomplete="off"></div>`
-        : `<p style="font-size:0.85rem;line-height:1.7;color:var(--muted);">Indiquez votre <strong style="color:var(--ink)">adresse e-mail</strong> pour recevoir la confirmation.</p><div><label>Adresse e-mail</label><input type="email" id="buy-email" placeholder="votre@email.com" autocomplete="off"></div>`;
-    }
+A.renderCommandes = function() {
+  var statusFilter = G('cmd-filter-status').value;
+  var bookFilter = G('cmd-filter-book').value;
+  var list = state.commandes.filter(function(c) {
+    if (statusFilter === 'pending' && c.status === 'ready') return false;
+    if (statusFilter === 'ready' && c.status !== 'ready') return false;
+    if (bookFilter && String(c.book_id) !== bookFilter) return false;
+    return true;
+  });
+  G('commandes-count').textContent = list.length + ' commande' + (list.length > 1 ? 's' : '');
+  if (!list.length) {
+    G('commandes-list').innerHTML = '<div class="empty"><div class="empty-icon">🛒</div>Aucune commande</div>';
+    return;
+  }
+  G('commandes-list').innerHTML = list.map(function(c) {
+    var isReady = c.status === 'ready';
+    var livBadge = c.livraison
+      ? '<span style="font-size:11px;color:var(--ban);font-family:DM Mono,monospace">📦 Livraison</span>'
+      : '<span style="font-size:11px;color:var(--muted);font-family:DM Mono,monospace">🏪 Retrait</span>';
+    return '<div class="cmd-row">' +
+      '<div class="cmd-avatar">' + initials(c.client_nom || '?') + '</div>' +
+      '<div class="cmd-info">' +
+        '<div class="cmd-name">' + escH(c.client_nom || '—') + '<span style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);margin-left:8px">#' + escH(c.client_carte || '—') + '</span></div>' +
+        '<div class="cmd-book">📖 ' + escH(c.book_titre || '—') + '</div>' +
+        '<div class="cmd-creneau">' + (c.creneau_label ? '🗓 ' + escH(c.creneau_label) : '') + '&nbsp;&nbsp;' + livBadge + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (c.contact_info ? '📬 ' + escH(c.contact_info) : '') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">' +
+        '<span class="status-badge ' + (isReady ? 'sb-ready' : 'sb-pending') + '">' + (isReady ? '✓ Prête' : '⏳ En attente') + '</span>' +
+        '<span class="cmd-credits">−' + (c.credits_debites || 0) + ' cr.</span>' +
+        '<span class="cmd-date">' + fmtDateTime(c.created_at) + '</span>' +
+      '</div>' +
+      '<div class="cmd-actions">' +
+        (isReady
+          ? '<button class="btn btn-ghost btn-sm" onclick="A.setCommandeStatus(' + c.id + ',\'pending\')">↩ Annuler</button>'
+          : '<button class="btn btn-ready btn-sm" onclick="A.setCommandeStatus(' + c.id + ',\'ready\')">✓ Marquer prête</button>'
+        ) +
+        '<button class="btn btn-danger btn-sm" onclick="A.deleteCommande(' + c.id + ')">Suppr.</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+};
 
-    async function buyFinalConfirm() {
-      const errEl = document.getElementById('buy-err-5');
-      errEl.classList.remove('show');
-      let contactInfo = '';
-      if (_buyDelivery) {
-        const addr = document.getElementById('buy-adresse')?.value.trim();
-        if (!addr) { errEl.classList.add('show'); return; }
-        contactInfo = addr;
-      } else {
-        const email = document.getElementById('buy-email')?.value.trim();
-        if (!email||!email.includes('@')) { errEl.classList.add('show'); return; }
-        contactInfo = email;
-      }
-      const credits = parseInt(_buyClient.credits)||0;
-      if (credits < _buyFinalPrice) { errEl.textContent=`✕ Solde insuffisant.`; errEl.classList.add('show'); return; }
-      await processOrder(contactInfo);
-    }
+G('cmd-filter-status').addEventListener('change', A.renderCommandes);
+G('cmd-filter-book').addEventListener('change', A.renderCommandes);
 
-    async function processOrder(contactInfo) {
-      const newCredits = (parseInt(_buyClient.credits)||0) - _buyFinalPrice;
-      const { error } = await db.from('clients').update({ credits: newCredits }).eq('card_number', _buyClient.card_number);
-      if (error) { alert('Erreur débit : '+error.message); return; }
-      if (_buyCreneau) await db.from('creneaux').update({ nb_commandes: _buyCreneau.nb_commandes+1 }).eq('id', _buyCreneau.id);
-      // Stocker la commande en BDD
-      await db.from('commandes').insert({
-        client_carte:    _buyClient.card_number,
-        client_nom:      _buyClient.name,
-        book_id:         _buyBook.id,
-        book_titre:      _buyBook.title,
-        credits_debites: _buyFinalPrice,
-        livraison:       _buyDelivery,
-        creneau_id:      _buyCreneau?.id || null,
-        creneau_label:   _buyCreneau?.label || null,
-        contact_info:    contactInfo
-      });
-      try {
-        await fetch('https://api.web3forms.com/submit', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject:'[Polio] Commande — '+_buyBook.title, from_name: _buyClient.name, email:'gustave.bo@protonmail.com',
-            message: `Client : ${_buyClient.name}\nCarte : ${_buyClient.card_number}\nLivre : ${_buyBook.title}\nCoût : ${_buyFinalPrice} crédits\nLivraison : ${_buyDelivery?'Oui':'Non'}\nCréneau : ${_buyCreneau?.label||'—'}\nContact : ${contactInfo}\nCrédits restants : ${newCredits}` })
-        });
-      } catch(_) {}
-      let msg = `Bonjour <strong>${_buyClient.name}</strong>, votre achat de <em>${_buyBook.title}</em> a bien été enregistré.<br><br>`;
-      msg += `Crédits débités : <strong>${_buyFinalPrice}</strong> — Solde restant : <strong>${newCredits}</strong>.<br><br>`;
-      msg += `Créneau : <strong>${_buyCreneau?.label||'—'}</strong><br><br>`;
-      msg += _buyDelivery ? `📦 Livraison à : <strong>${contactInfo}</strong>` : `📩 Confirmation envoyée à : <strong>${contactInfo}</strong>`;
-      document.getElementById('step6-msg').innerHTML = msg;
-      goToStep(6);
-    }
+A.setCommandeStatus = async function(id, status) {
+  setLoading(true);
+  var r = await db.from('commandes').update({ status: status }).eq('id', id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  var c = state.commandes.find(function(x) { return x.id === id; });
+  if (c) c.status = status;
+  A.renderCommandes(); A.renderStats();
+  toast(status === 'ready' ? '✓ Commande marquée prête' : '↩ Statut réinitialisé', 'ok');
+  setLoading(false);
+};
 
-    // RECHARGE
-    function openRechargeModal() {
-      document.getElementById('recharge-code').value='';
-      document.getElementById('recharge-card').value=document.getElementById('cardInput').value.trim()||'';
-      document.getElementById('recharge-err').classList.remove('show');
-      document.getElementById('recharge-success').style.display='none';
-      document.getElementById('recharge-overlay').classList.add('open');
-      document.body.style.overflow='hidden';
-    }
-    function closeRechargeModal() { document.getElementById('recharge-overlay').classList.remove('open'); document.body.style.overflow=''; }
-    document.getElementById('recharge-overlay').addEventListener('click', e => { if (e.target===document.getElementById('recharge-overlay')) closeRechargeModal(); });
+A.deleteCommande = async function(id) {
+  if (!confirm('Supprimer cette commande ?')) return;
+  setLoading(true);
+  var r = await db.from('commandes').delete().eq('id', id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.commandes = state.commandes.filter(function(x) { return x.id !== id; });
+  A.renderCommandes(); A.renderStats();
+  toast('Commande supprimée', 'ok');
+  setLoading(false);
+};
 
-    async function validerCodeCadeau() {
-      const code    = document.getElementById('recharge-code').value.trim().toUpperCase();
-      const cardNum = document.getElementById('recharge-card').value.trim();
-      const errEl   = document.getElementById('recharge-err');
-      const btn     = document.getElementById('btn-recharge');
-      const succEl  = document.getElementById('recharge-success');
-      errEl.textContent='✕ &nbsp;Code invalide, déjà utilisé, ou carte introuvable.';
-      errEl.classList.remove('show'); succEl.style.display='none';
-      if (!code||!cardNum) { errEl.classList.add('show'); return; }
-      btn.textContent='Vérification…'; btn.disabled=true;
-      try {
-        const { data: gift } = await db.from('gift_codes').select('*').eq('code',code).single();
-        if (!gift) throw new Error('Code introuvable');
-        if (gift.used) { errEl.textContent='✕ Ce code a déjà été utilisé.'; throw new Error('used'); }
-        const { data: client } = await db.from('clients').select('*').eq('card_number',cardNum).single();
-        if (!client) { errEl.textContent='✕ Numéro de carte introuvable.'; throw new Error('no client'); }
-        const newCredits = (parseInt(client.credits)||0) + gift.credits;
-        await db.from('clients').update({ credits: newCredits }).eq('card_number', cardNum);
-        await db.from('gift_codes').update({ used:true, used_by:cardNum, used_at:new Date().toISOString() }).eq('code', code);
-        succEl.textContent=`✓ ${gift.credits} crédits ajoutés ! Nouveau solde : ${newCredits} crédits.`;
-        succEl.style.display='block';
-        if (document.getElementById('cardInput').value.trim()===cardNum) {
-          document.getElementById('resultCredits').textContent=newCredits;
-          document.getElementById('creditsResult').classList.add('visible');
-        }
-      } catch(err) { if (!succEl.style.display||succEl.style.display==='none') errEl.classList.add('show'); }
-      btn.textContent='+ Ajouter les crédits'; btn.disabled=false;
-    }
+// ─── Livres ───────────────────────────
+var COLORS = { 'cover-elite': '#c8a96e', 'cover-coming1': '#c05050', 'cover-coming2': '#4a7aaa', 'cover-coming3': '#b8853a' };
 
-    // INIT
-    async function init() { await loadBooksFromDB(); await checkGlobalAccess(); }
-    init();
-    setInterval(async () => {
-      await checkGlobalAccess();
-      const ci = document.getElementById('cardInput').value.trim();
-      if (document.getElementById('creditsResult').classList.contains('visible') && ci) {
-        const { data } = await db.from('clients').select('credits').eq('card_number',ci).single().catch(()=>({data:null}));
-        if (data) document.getElementById('resultCredits').textContent=data.credits;
-      }
-    }, 10000);
-  </script>
+A.renderBooksGrid = function() {
+  G('books-grid').innerHTML = state.books.map(function(b) {
+    return '<div class="book-card">' +
+      '<div class="bc-icon">' + escH(b.icon || '📖') + '</div>' +
+      '<div class="bc-title">' + escH(b.title) + '</div>' +
+      '<div class="bc-author">' + escH(b.author || 'Polio Éditions') + '</div>' +
+      '<div class="bc-desc">' + escH(b.description || '—') + '</div>' +
+      '<div class="bc-meta"><span class="bc-credits">' + b.credits + '<span> cr</span></span>' +
+        '<span style="width:10px;height:10px;border-radius:50%;background:' + (COLORS[b.color] || '#888') + ';display:inline-block"></span>' +
+        '<span style="font-size:11px;color:var(--muted)">' + escH(b.color || '—') + '</span>' +
+      '</div>' +
+      '<div class="bc-actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="A.openEditBook(' + b.id + ')">✏️ Modifier</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="A.deleteBook(' + b.id + ',\'' + escH(b.title) + '\')">Suppr.</button>' +
+      '</div></div>';
+  }).join('') || '<div class="empty"><div class="empty-icon">📚</div>Aucun livre</div>';
+};
+
+A.openEditBook = function(id) {
+  var b = state.books.find(function(x) { return x.id === id; });
+  if (!b) return;
+  G('eb-id').value = b.id;
+  G('eb-title').value = b.title;
+  G('eb-author').value = b.author || '';
+  G('eb-desc').value = b.description || '';
+  G('eb-credits').value = b.credits || 0;
+  G('eb-color').value = b.color || 'cover-elite';
+  buildIconPicker('eb-icon-picker', 'eb-icon', b.icon || '⚔');
+  A.openModal('m-edit-book');
+};
+
+G('btn-ok-edit-book').addEventListener('click', async function() {
+  var id = parseInt(G('eb-id').value);
+  var title = G('eb-title').value.trim(), author = G('eb-author').value.trim() || 'Polio Éditions';
+  var desc = G('eb-desc').value.trim(), credits = parseInt(G('eb-credits').value) || 0;
+  var color = G('eb-color').value, icon = G('eb-icon').value || '⚔';
+  if (!title) { toast('Entrez un titre', 'err'); return; }
+  setLoading(true);
+  var r = await db.from('books').update({ title: title, author: author, description: desc, credits: String(credits), color: color, icon: icon }).eq('id', id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  var b = state.books.find(function(x) { return x.id === id; });
+  if (b) Object.assign(b, { title: title, author: author, description: desc, credits: credits, color: color, icon: icon });
+  A.closeModal(); A.renderAll();
+  toast('✅ Livre modifié', 'ok');
+  setLoading(false);
+});
+
+G('btn-add-book').addEventListener('click', function() {
+  G('ab-title').value = ''; G('ab-author').value = ''; G('ab-desc').value = '';
+  G('ab-credits').value = ''; G('ab-color').value = 'cover-elite';
+  buildIconPicker('ab-icon-picker', 'ab-icon', '⚔');
+  A.openModal('m-add-book');
+});
+
+G('btn-ok-add-book').addEventListener('click', async function() {
+  var title = G('ab-title').value.trim(), author = G('ab-author').value.trim() || 'Polio Éditions';
+  var desc = G('ab-desc').value.trim(), credits = parseInt(G('ab-credits').value) || 0;
+  var color = G('ab-color').value, icon = G('ab-icon').value || '⚔';
+  if (!title) { toast('Entrez un titre', 'err'); return; }
+  setLoading(true);
+  var r = await db.from('books').insert([{ title: title, author: author, description: desc, credits: String(credits), color: color, icon: icon }]).select().single();
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.books.push({ id: r.data.id, title: title, author: author, description: desc, credits: credits, icon: icon, color: color });
+  A.closeModal(); A.renderAll();
+  toast('📚 ' + title + ' ajouté', 'ok');
+  setLoading(false);
+});
+
+A.deleteBook = async function(id, title) {
+  if (!confirm('Supprimer « ' + title + ' » du catalogue ?')) return;
+  setLoading(true);
+  var r = await db.from('books').delete().eq('id', id);
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.books = state.books.filter(function(x) { return x.id !== id; });
+  A.renderAll(); toast('Livre supprimé', 'ok');
+  setLoading(false);
+};
+
+// ─── Espace créateur ──────────────────
+A.loadManuscrits = async function() {
+  setLoading(true);
+  try {
+    var r = await db.from('manuscrits').select('*').order('created_at', { ascending: false });
+    if (r.error) throw r.error;
+    state.manuscrits = r.data || [];
+    A.renderManuscrits();
+  } catch(e) {
+    G('createur-list').innerHTML = '<div class="empty"><div class="empty-icon">✍️</div><div>Aucun manuscrit reçu pour l\'instant.<br><span style="font-size:12px;color:var(--muted)">Les manuscrits envoyés depuis l\'espace créateur apparaîtront ici.</span></div></div>';
+  }
+  setLoading(false);
+};
+
+A.renderManuscrits = function() {
+  if (!state.manuscrits.length) {
+    G('createur-list').innerHTML = '<div class="empty"><div class="empty-icon">✍️</div>Aucun manuscrit reçu</div>';
+    return;
+  }
+  G('createur-list').innerHTML = state.manuscrits.map(function(m) {
+    var alreadyAdded = state.books.some(function(b) { return b.title === m.title && b.author === m.author; });
+    return '<div class="creator-item">' +
+      '<div class="ci-head">' +
+        '<div>' +
+          '<div class="ci-title">' + escH(m.title || 'Sans titre') + '</div>' +
+          '<div class="ci-author">par ' + escH(m.author || '—') + ' · carte ' + escH(m.card_number || '—') + '</div>' +
+        '</div>' +
+        (alreadyAdded
+          ? '<span class="status-badge sb-ready">✓ Dans le catalogue</span>'
+          : '<span class="status-badge sb-pending">⏳ En attente</span>'
+        ) +
+      '</div>' +
+      '<div class="ci-meta">' +
+        '<span>📝 ' + (m.words || 0) + ' mots</span>' +
+        '<span>📄 ' + (m.pages || 0) + ' pages</span>' +
+        '<span>📑 ' + (m.chapters_count || 0) + ' chapitres</span>' +
+        '<span>💰 ' + (m.price_credits || 0) + ' crédits suggérés</span>' +
+        '<span style="color:var(--muted)">' + fmtDateTime(m.created_at) + '</span>' +
+      '</div>' +
+      (m.content_preview ? '<div class="ci-content">' + escH(m.content_preview) + '</div>' : '') +
+      '<div class="ci-actions">' +
+        (!alreadyAdded ? '<button class="btn btn-gold btn-sm" onclick="A.openCreatorBookModal(' + m.id + ')">✦ Ajouter au catalogue</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="A.deleteManuscrit(' + m.id + ')">Supprimer</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+};
+
+A.openCreatorBookModal = function(mid) {
+  var m = state.manuscrits.find(function(x) { return x.id === mid; });
+  if (!m) return;
+  G('cb-title').value = m.title || '';
+  G('cb-author').value = m.author || '';
+  G('cb-desc').value = m.description || '';
+  G('cb-credits').value = m.price_credits || 250;
+  G('cb-color').value = 'cover-elite';
+  buildIconPicker('cb-icon-picker', 'cb-icon', '📖');
+  G('btn-ok-creator-book').onclick = function() { A.addBookFromCreator(m); };
+  A.openModal('m-creator-book');
+};
+
+A.addBookFromCreator = async function(m) {
+  var title = G('cb-title').value.trim(), author = G('cb-author').value.trim() || 'Polio Éditions';
+  var desc = G('cb-desc').value.trim(), credits = parseInt(G('cb-credits').value) || 250;
+  var color = G('cb-color').value, icon = G('cb-icon').value || '📖';
+  if (!title) { toast('Entrez un titre', 'err'); return; }
+  setLoading(true);
+  var r = await db.from('books').insert([{ title: title, author: author, description: desc, credits: String(credits), color: color, icon: icon }]).select().single();
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  state.books.push({ id: r.data.id, title: title, author: author, description: desc, credits: credits, icon: icon, color: color });
+  await db.from('manuscrits').update({ status: 'published' }).eq('id', m.id);
+  A.closeModal();
+  A.renderAll();
+  A.loadManuscrits();
+  toast('📚 ' + title + ' ajouté au catalogue', 'ok');
+  setLoading(false);
+};
+
+A.deleteManuscrit = async function(id) {
+  if (!confirm('Supprimer ce manuscrit définitivement ?')) return;
+  setLoading(true);
+  await db.from('manuscrits').delete().eq('id', id);
+  state.manuscrits = state.manuscrits.filter(function(x) { return x.id !== id; });
+  A.renderManuscrits();
+  toast('Manuscrit supprimé', 'ok');
+  setLoading(false);
+};
+
+// ─── Accès site ───────────────────────
+A.loadAcces = async function() {
+  setLoading(true);
+  try {
+    var r = await db.from('site_access').select('*').eq('site_key', 'polio-client').limit(1);
+    if (r.error) throw r.error;
+    var d = r.data && r.data[0];
+    A.updateAccesUI(d || { is_open: true, closed_message: '' });
+  } catch(e) {
+    G('status-display').textContent = 'Impossible de charger le statut';
+  }
+  setLoading(false);
+};
+
+A.updateAccesUI = function(d) {
+  var isOpen = !d || d.is_open !== false;
+  var disp = G('status-display');
+  disp.className = 'acces-status ' + (isOpen ? 'acces-open' : 'acces-closed');
+  disp.textContent = isOpen ? '🟢 Site client OUVERT — accessible au public' : '🔴 Site client FERMÉ — accès bloqué';
+  if (d && d.closed_message) G('closed-message').value = d.closed_message;
+};
+
+A.setAcces = async function(isOpen) {
+  setLoading(true);
+  var msg = G('closed-message').value.trim() || 'Polio Client est momentanément fermé. Revenez bientôt.';
+  var r = await db.from('site_access').upsert([{ site_key: 'polio-client', is_open: isOpen, closed_message: msg }], { onConflict: 'site_key' }).select().single();
+  if (r.error) { sbErr(r.error); setLoading(false); return; }
+  A.updateAccesUI(r.data);
+  setTimeout(function() { var f = G('site-iframe'); if (f) f.src = f.src; }, 1200);
+  toast(isOpen ? '🔓 Site client ouvert' : '🔒 Site client fermé', isOpen ? 'ok' : 'err');
+  setLoading(false);
+};
+
+G('btn-open').addEventListener('click', function() { A.setAcces(true); });
+G('btn-close').addEventListener('click', function() { A.setAcces(false); });
+
+// ─── Démarrage ────────────────────────
+A.loadAll();
+</script>
 </body>
 </html>
